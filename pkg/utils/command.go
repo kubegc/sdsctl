@@ -28,3 +28,13 @@ func (comm *Command) Execute() error {
 	fmt.Println(string(stdout.Bytes()))
 	return nil
 }
+
+type CommandList struct {
+	comms []*Command
+}
+
+func (cl *CommandList) Execute() {
+	for _, comm := range cl.comms {
+		comm.Execute()
+	}
+}
