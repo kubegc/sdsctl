@@ -1,0 +1,19 @@
+package constant
+
+import "net/http"
+
+// grpc status & msg
+const (
+	STATUS_OK         = http.StatusOK
+	STATUS_BADREQUEST = http.StatusBadRequest
+	STATUS_ERR        = http.StatusInternalServerError
+)
+
+const (
+	MESSAGE_OK = "ok"
+)
+
+// log
+const (
+	DefualtLogPath = "/var/log/sdsctl.log"
+)
