@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/WANNA959/sdsctl/pkg/constant"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -11,9 +12,9 @@ import (
 )
 
 var gvr = schema.GroupVersionResource{
-	Group:    "doslab.io",
-	Version:  "v1",
-	Resource: "virtualmachinedisks",
+	Group:    constant.DefaultGroup,
+	Version:  constant.DefaultVersion,
+	Resource: constant.VMD_Kind,
 }
 
 type VirtualMachineDiskSpec struct {

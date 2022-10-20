@@ -12,10 +12,10 @@ type Command struct {
 	Params map[string]string
 }
 
-func (comm *Command) Execute() error {
+func (comm *Command) Execute() (string, error) {
 	scmd := comm.Cmd
 	for k, v := range comm.Params {
-		scmd += fmt.Sprintf(" --%s %s ", k, v)
+		scmd += fmt.Sprintf(" %s %s ", k, v)
 	}
 	cmd := exec.Command("bash", "-c", scmd)
 	var stdout, stderr bytes.Buffer
@@ -23,10 +23,10 @@ func (comm *Command) Execute() error {
 	cmd.Stderr = &stderr
 	err := cmd.Run()
 	if err != nil {
-		return errors.New(string(stderr.Bytes()))
+		return "", errors.New(string(stderr.Bytes()))
 	}
 	fmt.Println(string(stdout.Bytes()))
-	return nil
+	return string(stdout.Bytes()), nil
 }
 
 type CommandList struct {

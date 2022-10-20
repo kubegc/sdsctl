@@ -17,3 +17,11 @@ const (
 const (
 	DefualtLogPath = "/var/log/sdsctl.log"
 )
+
+// k8s GVK
+const (
+	DefaultGroup   = "doslab.io"
+	DefaultVersion = "v1"
+	VMD_Kind       = "VirtualMachineDisk"
+	VMDS_Kind      = "virtualmachinedisks"
+)
