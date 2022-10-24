@@ -12,12 +12,22 @@ func TestShowVol(t *testing.T) {
 }
 
 func TestCreateVol(t *testing.T) {
-	vol, err := CreateVol("pooltest2", "disktest.qcow2", "dir", "5G")
+	vol, err := CreateVol("pooltest2", "disktest4", "dir", "1.5G", "qcow2")
 	fmt.Printf("vol:%+v\n", vol)
 	fmt.Printf("err:%+v\n", err)
 }
 
 func TestDeleteVol(t *testing.T) {
-	err := DeleteVol("pooltest2", "disktest.qcow2", "dir")
+	err := DeleteVol("pooltest2", "test3.qcow2", "dir")
+	fmt.Printf("err:%+v\n", err)
+}
+
+func TestResizeVol(t *testing.T) {
+	err := ResizeVol("pooltest2", "test3.qcow2", "dir", "5.5G")
+	fmt.Printf("err:%+v\n", err)
+}
+
+func TestCloneVol(t *testing.T) {
+	err := CloneVol("pooltest2", "test2.qcow2", "test3.qcow2", "dir")
 	fmt.Printf("err:%+v\n", err)
 }

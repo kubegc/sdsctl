@@ -1,9 +1,12 @@
 package virsh
 
 import (
+	"encoding/xml"
+	"github.com/dustin/go-humanize"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
 	"path/filepath"
+	"strings"
 )
 
 func GetVol(poolName, volName, vtype string) (*libvirt.StorageVol, error) {
@@ -23,21 +26,49 @@ func GetVol(poolName, volName, vtype string) (*libvirt.StorageVol, error) {
 	return vol, nil
 }
 
+func IsVolExist(poolName, volName, vtype string) bool {
+	_, err := GetVol(poolName, volName, vtype)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+var unitTransMap = map[string]string{
+	"kb": "kib",
+	"mb": "mib",
+	"gb": "gib",
+	"tb": "tib",
+	"pb": "pib",
+	"eb": "eib",
+	"k":  "ki",
+	"m":  "mi",
+	"g":  "gi",
+	"t":  "ti",
+	"p":  "pi",
+	"e":  "ei",
+	"":   "b",
+	"b":  "b",
+}
+
 func parseCapacity(raw string) (uint64, string) {
-	var num uint64 = 0
 	var unit string
-	for idx := range raw {
-		if raw[idx] >= '0' && raw[idx] <= '9' {
-			num = 10*num + uint64(raw[idx]-'0')
-		} else {
-			unit = raw[idx:]
+	var i int
+	for i = len(raw) - 1; i >= 0; i-- {
+		if raw[i] >= '0' && raw[i] <= '9' {
+			unit = strings.ToLower(raw[i+1:])
 			break
 		}
 	}
-	return num, unit
+	if !strings.Contains(unit, "i") {
+		unit = unitTransMap[unit]
+	}
+	newUnit := raw[0:i+1] + unit
+	num, _ := humanize.ParseBytes(newUnit)
+	return num, "byte"
 }
 
-func CreateVol(poolName, volName, vtype, capacity string) (*libvirt.StorageVol, error) {
+func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.StorageVol, error) {
 	conn, err := GetConn()
 	defer conn.Close()
 	if err != nil {
@@ -54,7 +85,7 @@ func CreateVol(poolName, volName, vtype, capacity string) (*libvirt.StorageVol, 
 	diskPath := filepath.Join(path, volName)
 
 	num, unit := parseCapacity(capacity)
-	volDesc := &libvirtxml.StorageVolume{
+	var volDesc = &libvirtxml.StorageVolume{
 		Type: vtype,
 		Name: volName,
 		Capacity: &libvirtxml.StorageVolumeSize{
@@ -63,6 +94,9 @@ func CreateVol(poolName, volName, vtype, capacity string) (*libvirt.StorageVol, 
 		},
 		Target: &libvirtxml.StorageVolumeTarget{
 			Path: diskPath,
+			Format: &libvirtxml.StorageVolumeTargetFormat{
+				Type: format,
+			},
 		},
 	}
 	volXML, err := volDesc.Marshal()
@@ -77,9 +111,55 @@ func DeleteVol(poolName, volName, vtype string) error {
 	if err != nil {
 		return err
 	}
-	err = vol.Delete(0)
+	vol.Delete(0)
+	return vol.Free()
+}
+
+func ResizeVol(poolName, volName, vtype, capacity string) error {
+	vol, err := GetVol(poolName, volName, vtype)
 	if err != nil {
 		return err
 	}
-	return vol.Free()
+	bytes, _ := parseCapacity(capacity)
+	return vol.Resize(bytes, libvirt.STORAGE_VOL_RESIZE_SHRINK)
+}
+
+func CloneVol(poolName, volName, newVolName, vtype string) error {
+	pool, err := GetPoolInfo(poolName)
+	if err != nil {
+		return err
+	}
+	vol, err := GetVol(poolName, volName, vtype)
+	if err != nil {
+		return err
+	}
+
+	// parse old format
+	vxml, err := vol.GetXMLDesc(0)
+	if err != nil {
+		return err
+	}
+	volObj := &libvirtxml.StorageVolume{}
+	err = xml.Unmarshal([]byte(vxml), volObj)
+	if err != nil {
+		return err
+	}
+	format := volObj.Target.Format.Type
+
+	// define vol xml, with newname & format
+	xml := &libvirtxml.StorageVolume{
+		Name: newVolName,
+		Target: &libvirtxml.StorageVolumeTarget{
+			Format: &libvirtxml.StorageVolumeTargetFormat{
+				Type: format,
+			},
+		},
+	}
+	xmlStr, err := xml.Marshal()
+	if err != nil {
+		return err
+	}
+	// clone with old vol
+	_, err = pool.StorageVolCreateXMLFrom(xmlStr, vol, 0)
+	return err
 }
