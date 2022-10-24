@@ -15,15 +15,17 @@ func main() {
 		// pool commands
 		pool.NewShowPoolCommand(),
 		pool.NewCreatePoolCommand(),
+		pool.NewDeletePoolCommand(),
 		pool.NewStopPoolCommand(),
 		pool.NewAutoStartPoolCommand(),
 		pool.NewStartPoolCommand(),
-		pool.NewStopPoolCommand(),
 
 		// disk commands
 		disk.NewShowDiskCommand(),
 		disk.NewCreateDiskCommand(),
 		disk.NewDeleteDiskCommand(),
+		disk.NewCloneDiskCommand(),
+		disk.NewResizeDiskCommand(),
 	}
 
 	if err := app.Run(os.Args); err != nil {

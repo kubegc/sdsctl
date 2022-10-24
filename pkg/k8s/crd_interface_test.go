@@ -39,3 +39,21 @@ func TestGet3(t *testing.T) {
 	fmt.Printf("pooltest spec nodename: %+v\n", nodeName)
 	fmt.Printf("pooltest spec msg: %+v\n", msg)
 }
+
+func TestKsGvr_Update(t *testing.T) {
+	ksgvr := NewKsGvr(constant.VMPS_Kind)
+	data := map[string]interface{}{
+		"key1": "value1",
+		"key2": map[string]string{
+			"key3": "value3",
+		},
+	}
+	err := ksgvr.Update(context.TODO(), "default", "pooltest111", "pool.extra", data)
+	fmt.Printf("err: %+v\n", err)
+}
+
+func TestKsGvr_Delete(t *testing.T) {
+	ksgvr := NewKsGvr(constant.VMPS_Kind)
+	err := ksgvr.Delete(context.TODO(), "default", "pooltest111")
+	fmt.Printf("err: %+v\n", err)
+}
