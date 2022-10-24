@@ -24,4 +24,6 @@ const (
 	DefaultVersion = "v1"
 	VMD_Kind       = "VirtualMachineDisk"
 	VMDS_Kind      = "virtualmachinedisks"
+	VMP_Kind       = "VirtualMachinePool"
+	VMPS_Kind      = "virtualmachinepools"
 )

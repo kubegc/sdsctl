@@ -10,6 +10,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/tools/clientcmd"
+	"os"
+	"path/filepath"
 )
 
 type KsGvr struct {
@@ -25,7 +28,7 @@ type KsCrd struct {
 type KsCrdList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []VirtualMachineDisk `json:"items"`
+	Items           []KsCrd `json:"items"`
 }
 
 func NewKsGvr(crdName string) KsGvr {
@@ -38,7 +41,38 @@ func NewKsGvr(crdName string) KsGvr {
 	}
 }
 
-func (ks *KsGvr) Get(ctx context.Context, client dynamic.Interface, namespace string, name string) (*KsCrd, error) {
+var Client dynamic.Interface
+
+func GetClient() (dynamic.Interface, error) {
+	var err error
+	if Client == nil {
+		Client, err = NewClient()
+		if err != nil {
+			return nil, err
+		}
+	}
+	return Client, nil
+}
+
+func NewClient() (dynamic.Interface, error) {
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	client, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	return client, nil
+}
+
+func (ks *KsGvr) Get(ctx context.Context, namespace string, name string) (*KsCrd, error) {
+	client, err := GetClient()
+	if err != nil {
+		return nil, err
+	}
 	utd, err := client.Resource(ks.gvr).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -56,7 +90,7 @@ func (ks *KsGvr) Get(ctx context.Context, client dynamic.Interface, namespace st
 }
 
 func (ks *KsGvr) Exist(ctx context.Context, client dynamic.Interface, namespace string, name string) (bool, error) {
-	_, err := ks.Get(ctx, client, namespace, name)
+	_, err := ks.Get(ctx, namespace, name)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			return false, nil

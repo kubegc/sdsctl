@@ -5,26 +5,12 @@ import (
 	"fmt"
 	"github.com/WANNA959/sdsctl/pkg/constant"
 	"github.com/tidwall/gjson"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/tools/clientcmd"
-	"os"
-	"path/filepath"
 	"testing"
 )
 
 func TestGet2(t *testing.T) {
 	ksgvr := NewKsGvr(constant.VMDS_Kind)
-	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
-	if err != nil {
-		panic(err)
-	}
-
-	client, err := dynamic.NewForConfig(config)
-	if err != nil {
-		panic(err)
-	}
-	vmd, err := ksgvr.Get(context.TODO(), client, "default", "disktest131")
+	vmd, err := ksgvr.Get(context.TODO(), "default", "disktest")
 	if err != nil {
 		panic(err)
 	}
@@ -36,4 +22,20 @@ func TestGet2(t *testing.T) {
 	msg := parse.Get("status.conditions.state.waiting.message")
 	fmt.Printf("disktest131 spec nodename: %+v\n", nodeName)
 	fmt.Printf("disktest131 spec msg: %+v\n", msg)
+}
+
+func TestGet3(t *testing.T) {
+	ksgvr := NewKsGvr(constant.VMPS_Kind)
+	vmp, err := ksgvr.Get(context.TODO(), "default", "pooltest")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("pooltest: %+v\n", vmp)
+	fmt.Printf("pooltest spec: %+v\n", string(vmp.Spec.Raw))
+
+	parse := gjson.ParseBytes(vmp.Spec.Raw)
+	nodeName := parse.Get("nodeName")
+	msg := parse.Get("status.conditions.state.waiting.message")
+	fmt.Printf("pooltest spec nodename: %+v\n", nodeName)
+	fmt.Printf("pooltest spec msg: %+v\n", msg)
 }

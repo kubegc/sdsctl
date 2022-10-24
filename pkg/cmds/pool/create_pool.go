@@ -1,18 +1,9 @@
-package cmds
+package pool
 
 import (
-	"fmt"
+	"github.com/WANNA959/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
-	"text/template"
 )
-
-var healthTemplate = template.Must(template.New("sdsctl create-pool").Parse(`
-------------------------------------------------
-network-controller:
-    control grpc client health: {{.CtrlHealth}}
-    bootstrap grpc client health: {{.BootHealth}}
-------------------------------------------------
-`))
 
 func NewCreatePoolCommand() *cli.Command {
 	return &cli.Command{
@@ -22,13 +13,17 @@ func NewCreatePoolCommand() *cli.Command {
 		Action:    createPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "url",
+				Name:  "name",
 				Usage: "url of pool",
 			},
 			&cli.StringFlag{
 				Name:  "type",
 				Usage: "storage pool type ",
 				Value: "dir",
+			},
+			&cli.StringFlag{
+				Name:  "url",
+				Usage: "url of pool",
 			},
 			&cli.StringFlag{
 				Name:  "content",
@@ -49,7 +44,10 @@ func NewCreatePoolCommand() *cli.Command {
 }
 
 func createPool(ctx *cli.Context) error {
-	ctype := ctx.String("type")
-	fmt.Println(ctype)
-	return nil
+	_, err := virsh.CreatePool(ctx.String("name"), ctx.String("type"), ctx.String("target"))
+	if err != nil {
+		return err
+	}
+	err = virsh.AutoStartPool(ctx.String("name"), ctx.Bool("auto-start"))
+	return err
 }

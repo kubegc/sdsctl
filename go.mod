@@ -3,7 +3,9 @@ module github.com/WANNA959/sdsctl
 go 1.19
 
 require (
+	github.com/dustin/go-humanize v1.0.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
+	github.com/libvirt/libvirt-go-xml v7.4.0+incompatible
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/tidwall/gjson v1.14.3
 	github.com/urfave/cli/v2 v2.20.2
@@ -11,6 +13,7 @@ require (
 	google.golang.org/protobuf v1.28.1
 	k8s.io/apimachinery v0.25.3
 	k8s.io/client-go v0.25.3
+	libvirt.org/go/libvirt v1.8007.0
 )
 
 require (

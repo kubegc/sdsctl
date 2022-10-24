@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/WANNA959/sdsctl/pkg/cmds"
+	"github.com/WANNA959/sdsctl/pkg/cmds/pool"
 	"github.com/urfave/cli/v2"
 	"os"
 )
@@ -10,7 +11,16 @@ import (
 func main() {
 	app := cmds.NewApp()
 	app.Commands = []*cli.Command{
-		cmds.NewCreatePoolCommand(),
+		// pool commands
+		pool.NewShowPoolCommand(),
+		pool.NewCreatePoolCommand(),
+		pool.NewStopPoolCommand(),
+		pool.NewAutoStartPoolCommand(),
+		pool.NewStartPoolCommand(),
+		pool.NewStopPoolCommand(),
+
+		// disk commands
+
 	}
 
 	if err := app.Run(os.Args); err != nil {
