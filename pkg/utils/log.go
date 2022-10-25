@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/WANNA959/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/constant"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/op/go-logging"
 	"os"

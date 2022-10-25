@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/WANNA959/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/tidwall/sjson"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -1,7 +1,7 @@
 package pool
 
 import (
-	"github.com/WANNA959/sdsctl/pkg/virsh"
+	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
 

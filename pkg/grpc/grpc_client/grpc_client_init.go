@@ -3,8 +3,8 @@ package grpc_client
 import (
 	"errors"
 	"fmt"
-	"github.com/WANNA959/sdsctl/pkg/grpc/pb_gen"
-	"github.com/WANNA959/sdsctl/pkg/utils"
+	"github.com/kube-stack/sdsctl/pkg/grpc/pb_gen"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )

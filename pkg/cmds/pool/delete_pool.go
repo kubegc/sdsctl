@@ -1,9 +1,9 @@
 package pool
 
 import (
-	"github.com/WANNA959/sdsctl/pkg/constant"
-	"github.com/WANNA959/sdsctl/pkg/k8s"
-	"github.com/WANNA959/sdsctl/pkg/virsh"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
 

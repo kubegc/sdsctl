@@ -2,7 +2,7 @@ package virsh
 
 import (
 	"encoding/xml"
-	"github.com/WANNA959/sdsctl/pkg/utils"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
 )

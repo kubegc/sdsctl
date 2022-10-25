@@ -1,4 +1,4 @@
-module github.com/WANNA959/sdsctl
+module github.com/kube-stack/sdsctl
 
 go 1.19
 

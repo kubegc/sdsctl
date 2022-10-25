@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/WANNA959/sdsctl/pkg/cmds"
-	"github.com/WANNA959/sdsctl/pkg/cmds/disk"
-	"github.com/WANNA959/sdsctl/pkg/cmds/pool"
+	"github.com/kube-stack/sdsctl/pkg/cmds"
+	"github.com/kube-stack/sdsctl/pkg/cmds/disk"
+	"github.com/kube-stack/sdsctl/pkg/cmds/pool"
 	"github.com/urfave/cli/v2"
 	"os"
 )

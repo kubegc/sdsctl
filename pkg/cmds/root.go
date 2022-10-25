@@ -2,7 +2,7 @@ package cmds
 
 import (
 	"fmt"
-	"github.com/WANNA959/sdsctl/pkg/version"
+	"github.com/kube-stack/sdsctl/pkg/version"
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"

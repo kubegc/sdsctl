@@ -3,7 +3,7 @@ package grpc_client
 import (
 	"context"
 	"fmt"
-	"github.com/WANNA959/sdsctl/pkg/grpc/pb_gen"
+	"github.com/kube-stack/sdsctl/pkg/grpc/pb_gen"
 	"testing"
 )
 
