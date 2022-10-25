@@ -5,6 +5,7 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -25,11 +26,17 @@ func NewShowPoolCommand() *cli.Command {
 				Name:  "pool",
 				Usage: "storage pool type",
 			},
+			&cli.StringFlag{
+				Name:  "auto-start",
+				Usage: "if auto-start pool",
+				Value: "true",
+			},
 		},
 	}
 }
 
 func showPool(ctx *cli.Context) error {
+
 	name := ctx.String("pool")
 	pool, err := virsh.GetPoolInfo(name)
 	if err != nil {
@@ -42,8 +49,9 @@ func showPool(ctx *cli.Context) error {
 		return err
 	}
 
+	flags := utils.ParseFlagMap(ctx)
 	uuid, _ := pool.GetUUIDString()
-	res := map[string]interface{}{
+	extra := map[string]interface{}{
 		"state":      virsh.GetPoolState(info.State),
 		"uuid":       uuid,
 		"free":       humanize.Bytes(info.Available),
@@ -51,7 +59,8 @@ func showPool(ctx *cli.Context) error {
 		"allocation": humanize.Bytes(info.Allocation),
 		"msg":        vmp.Spec.String(),
 	}
-	fmt.Printf("res: %+v", res)
+	flags = utils.MergeFlags(flags, extra)
+	fmt.Println(flags)
 
 	return nil
 }

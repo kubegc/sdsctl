@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/urfave/cli/v2"
 	"os/exec"
 )
 
@@ -37,4 +38,21 @@ func (cl *CommandList) Execute() {
 	for _, comm := range cl.comms {
 		comm.Execute()
 	}
+}
+
+// CLI parse
+func ParseFlagMap(ctx *cli.Context) map[string]interface{} {
+	names := ctx.LocalFlagNames()
+	flags := make(map[string]interface{})
+	for _, name := range names {
+		flags[name] = ctx.Value(name)
+	}
+	return flags
+}
+
+func MergeFlags(flags, extra map[string]interface{}) map[string]interface{} {
+	for k, v := range extra {
+		flags[k] = v
+	}
+	return flags
 }

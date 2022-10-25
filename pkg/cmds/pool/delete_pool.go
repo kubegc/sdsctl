@@ -28,10 +28,15 @@ func NewDeletePoolCommand() *cli.Command {
 }
 
 func deletePool(ctx *cli.Context) error {
-	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
-	err := ksgvr.Delete(ctx.Context, "default", ctx.String("pool"))
-	if err != nil {
+	if err := virsh.DeletePool(ctx.String("pool")); err != nil {
+		// backup
+		virsh.StartPool(ctx.String("pool"))
 		return err
 	}
-	return virsh.DeletePool(ctx.String("pool"))
+	// delete vmp
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err := ksgvr.Delete(ctx.Context, constant.DefaultNamespace, ctx.String("pool")); err != nil {
+		return err
+	}
+	return nil
 }

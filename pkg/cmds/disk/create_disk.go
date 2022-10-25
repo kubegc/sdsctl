@@ -3,6 +3,9 @@ package disk
 import (
 	"errors"
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -50,5 +53,14 @@ func createDisk(ctx *cli.Context) error {
 	}
 
 	_, err = virsh.CreateVol(pool, ctx.String("vol"), ctx.String("type"), ctx.String("capacity"), ctx.String("format"))
+
+	// update vmp
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	flags := utils.ParseFlagMap(ctx)
+	extra := map[string]interface{}{}
+	flags = utils.MergeFlags(flags, extra)
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, flags); err != nil {
+		return err
+	}
 	return err
 }

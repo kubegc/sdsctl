@@ -1,8 +1,12 @@
 package pool
 
 import (
+	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"strconv"
 )
 
 func NewAutoStartPoolCommand() *cli.Command {
@@ -21,15 +25,28 @@ func NewAutoStartPoolCommand() *cli.Command {
 				Usage: "storage pool type ",
 				Value: "dir",
 			},
-			&cli.BoolFlag{
+			&cli.StringFlag{
 				Name:  "auto-start",
 				Usage: "if auto-start pool",
-				Value: true,
+				Value: "true",
 			},
 		},
 	}
 }
 
 func autostartPool(ctx *cli.Context) error {
-	return virsh.AutoStartPool(ctx.String("pool"), ctx.Bool("auto-start"))
+	autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
+	if err != nil {
+		return err
+	}
+	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
+		return err
+	}
+	// update vmp
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	updateKey := fmt.Sprintf("%s.autostart", constant.CRD_Pool_Key)
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), updateKey, autoStart); err != nil {
+		return err
+	}
+	return nil
 }

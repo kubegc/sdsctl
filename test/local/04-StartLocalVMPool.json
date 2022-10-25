@@ -1,0 +1,19 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachinePool",
+  "metadata": {
+    "name": "pooltest111",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "startPool": {
+        "type": "dir",
+        "pool": "pooltest111"
+      }
+    }
+  }
+}

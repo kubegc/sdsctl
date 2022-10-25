@@ -1,6 +1,9 @@
 package pool
 
 import (
+	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -26,5 +29,14 @@ func NewStartPoolCommand() *cli.Command {
 }
 
 func startPool(ctx *cli.Context) error {
-	return virsh.StartPool(ctx.String("pool"))
+	if err := virsh.StartPool(ctx.String("pool")); err != nil {
+		return err
+	}
+	// update vmp
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	updateKey := fmt.Sprintf("%s.state", constant.CRD_Pool_Key)
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), updateKey, constant.CRD_Pool_Active); err != nil {
+		return err
+	}
+	return nil
 }

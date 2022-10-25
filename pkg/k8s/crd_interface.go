@@ -135,6 +135,11 @@ func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value 
 	if err != nil {
 		return err
 	}
+	// update status
+	bytes, err = AddPowerStatus(bytes, constant.CRD_Ready_Msg, constant.CRD_Ready_Reason)
+	if err != nil {
+		return err
+	}
 	kscrd.Spec.Raw = bytes
 	//fmt.Printf("after:%s\n", string(kscrd.Spec.Raw))
 	// docode for bytes

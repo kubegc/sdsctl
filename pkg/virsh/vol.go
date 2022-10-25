@@ -2,9 +2,12 @@ package virsh
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/dustin/go-humanize"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -82,7 +85,11 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 	if err != nil {
 		return nil, err
 	}
-	diskPath := filepath.Join(path, volName)
+	volFile := fmt.Sprintf(volName, format)
+	diskPath := filepath.Join(path, volFile)
+	if utils.Exists(diskPath) {
+		os.MkdirAll(diskPath, os.ModePerm)
+	}
 
 	num, unit := parseCapacity(capacity)
 	var volDesc = &libvirtxml.StorageVolume{
