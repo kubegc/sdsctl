@@ -43,8 +43,12 @@ func NewCreatePoolCommand() *cli.Command {
 				Value: "true",
 			},
 			&cli.StringFlag{
-				Name:  "opt",
-				Usage: "extra options",
+				Name:  "source-host",
+				Usage: "remote storage server ip",
+			},
+			&cli.StringFlag{
+				Name:  "source-path",
+				Usage: "mount path of remote storage server",
 			},
 		},
 	}
@@ -55,7 +59,8 @@ func createPool(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	pool, err := virsh.CreatePool(ctx.String("pool"), ctx.String("type"), ctx.String("url"))
+	sourceHost, sourcePath := ctx.String("source-host"), ctx.String("source-path")
+	pool, err := virsh.CreatePool(ctx.String("pool"), ctx.String("type"), ctx.String("url"), sourceHost, sourcePath)
 	if err != nil {
 		virsh.DeletePool(ctx.String("pool"))
 		return err
@@ -71,14 +76,18 @@ func createPool(ctx *cli.Context) error {
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 	flags := utils.ParseFlagMap(ctx)
 	delete(flags, "auto-start")
+	delete(flags, "source-host")
+	delete(flags, "source-path")
 	info, err := pool.GetInfo()
 	if err != nil {
 		return err
 	}
 	extra := map[string]interface{}{
-		"state":     constant.CRD_Pool_Active,
-		"autostart": autoStart,
-		"capacity":  humanize.Bytes(info.Capacity),
+		"state":      constant.CRD_Pool_Active,
+		"autostart":  autoStart,
+		"capacity":   humanize.Bytes(info.Capacity),
+		"sourceHost": sourceHost,
+		"sourcePath": sourcePath,
 	}
 	flags = utils.MergeFlags(flags, extra)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, flags); err != nil {

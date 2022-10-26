@@ -18,8 +18,15 @@ func TestGetPoolInfo(t *testing.T) {
 	fmt.Printf("path:%+v", now.Target.Path)
 }
 
-func TestCreatePool(t *testing.T) {
-	pool, err := CreatePool("pooltest2", "dir", "/var/lib/libvirt/pooltest2")
+func TestCreateLocalPool(t *testing.T) {
+	pool, err := CreatePool("pooltest2", "dir", "/var/lib/libvirt/pooltest2", "", "")
+	fmt.Printf("err: %+v\n", err)
+	info, _ := pool.GetInfo()
+	fmt.Printf("info: %+v\n", info)
+}
+
+func TestCreateNfsPool(t *testing.T) {
+	pool, err := CreatePool("nfspool2", "netfs", "/var/lib/libvirt/nfspool2", "192.168.100.102", "/root/nfs/nfspool2")
 	fmt.Printf("err: %+v\n", err)
 	info, _ := pool.GetInfo()
 	fmt.Printf("info: %+v\n", info)

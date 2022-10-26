@@ -27,8 +27,8 @@ func GetPoolState(state libvirt.StoragePoolState) string {
 	return "inactive"
 }
 
-func CreatePool(name, ptype, target string) (*libvirt.StoragePool, error) {
-	pool, err := DefinePool(name, ptype, target)
+func CreatePool(name, ptype, target, sourceHost, sourcePath string) (*libvirt.StoragePool, error) {
+	pool, err := DefinePool(name, ptype, target, sourceHost, sourcePath)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func CreatePool(name, ptype, target string) (*libvirt.StoragePool, error) {
 	return pool, nil
 }
 
-func DefinePool(name, ptype, target string) (*libvirt.StoragePool, error) {
+func DefinePool(name, ptype, target, sourceHost, sourcePath string) (*libvirt.StoragePool, error) {
 	conn, err := GetConn()
 	defer conn.Close()
 	if err != nil {
@@ -54,6 +54,16 @@ func DefinePool(name, ptype, target string) (*libvirt.StoragePool, error) {
 	poolXML := libvirtxml.StoragePool{
 		Type: ptype,
 		Name: name,
+		Source: &libvirtxml.StoragePoolSource{
+			Dir: &libvirtxml.StoragePoolSourceDir{
+				Path: sourcePath,
+			},
+			Host: []libvirtxml.StoragePoolSourceHost{
+				{
+					Name: sourceHost,
+				},
+			},
+		},
 		Target: &libvirtxml.StoragePoolTarget{
 			Path: target,
 		},
