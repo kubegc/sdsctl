@@ -4,10 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/dustin/go-humanize"
-	"github.com/kube-stack/sdsctl/pkg/utils"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -85,12 +83,18 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 	if err != nil {
 		return nil, err
 	}
-	volFile := fmt.Sprintf(volName, format)
-	diskPath := filepath.Join(path, volFile)
-	if utils.Exists(diskPath) {
-		os.MkdirAll(diskPath, os.ModePerm)
-	}
-
+	diskPath := filepath.Join(path, volName)
+	//if !utils.Exists(diskPath) {
+	//	os.MkdirAll(diskPath, os.ModePerm)
+	//}
+	fmt.Println(diskPath)
+	//pool, err = CreatePool(volName, vtype, diskPath)
+	//if err != nil {
+	//	return nil, err
+	//}
+	volFile := fmt.Sprintf("%s.%s", volName, format)
+	volPath := filepath.Join(diskPath, volFile)
+	fmt.Println(volPath)
 	num, unit := parseCapacity(capacity)
 	var volDesc = &libvirtxml.StorageVolume{
 		Type: vtype,
@@ -100,7 +104,7 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 			Value: num,
 		},
 		Target: &libvirtxml.StorageVolumeTarget{
-			Path: diskPath,
+			Path: volPath,
 			Format: &libvirtxml.StorageVolumeTargetFormat{
 				Type: format,
 			},

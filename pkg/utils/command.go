@@ -31,13 +31,16 @@ func (comm *Command) Execute() (string, error) {
 }
 
 type CommandList struct {
-	comms []*Command
+	Comms []*Command
 }
 
-func (cl *CommandList) Execute() {
-	for _, comm := range cl.comms {
-		comm.Execute()
+func (cl *CommandList) Execute() error {
+	for _, comm := range cl.Comms {
+		if _, err := comm.Execute(); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // CLI parse

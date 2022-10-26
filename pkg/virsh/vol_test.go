@@ -12,13 +12,13 @@ func TestShowVol(t *testing.T) {
 }
 
 func TestCreateVol(t *testing.T) {
-	vol, err := CreateVol("pooltest2", "disktest4", "dir", "1.5G", "qcow2")
+	vol, err := CreateVol("pooltest2", "disktest3", "dir", "1.5G", "qcow2")
 	fmt.Printf("vol:%+v\n", vol)
 	fmt.Printf("err:%+v\n", err)
 }
 
 func TestDeleteVol(t *testing.T) {
-	err := DeleteVol("pooltest2", "test3.qcow2", "dir")
+	err := DeleteVol("pooltest2", "disktest4", "dir")
 	fmt.Printf("err:%+v\n", err)
 }
 

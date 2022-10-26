@@ -141,7 +141,7 @@ func GetPoolTargetPath(name string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	pool, err := GetPoolInfo("pooltest2")
+	pool, err := GetPoolInfo(name)
 	if err != nil {
 		return "", err
 	}

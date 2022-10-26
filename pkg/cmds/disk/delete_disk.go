@@ -3,6 +3,8 @@ package disk
 import (
 	"errors"
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -40,10 +42,19 @@ func deleteDisk(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsVolExist(pool, ctx.String("vol"), ctx.String("type"))
+	exist := virsh.IsDiskExist(pool, ctx.String("vol"), ctx.String("type"))
 	if !exist {
 		return errors.New(fmt.Sprintf("the volume %+v is not exist", ctx.String("vol")))
 	}
 
-	return virsh.DeleteVol(pool, ctx.String("vol"), ctx.String("type"))
+	if err = virsh.DeleteDisk(pool, ctx.String("vol"), ctx.String("type")); err != nil {
+		return err
+	}
+
+	// delete vmd
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	if ksgvr.Delete(ctx.Context, constant.DefaultNamespace, ctx.String("vol")); err != nil {
+		return err
+	}
+	return nil
 }

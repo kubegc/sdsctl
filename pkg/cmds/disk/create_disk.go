@@ -3,6 +3,7 @@ package disk
 import (
 	"errors"
 	"fmt"
+	"github.com/dustin/go-humanize"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
@@ -25,7 +26,7 @@ func NewCreateDiskCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:  "pool",
 				Usage: "storage pool name",
-				Value: "dir",
+				Value: "localfs",
 			},
 			&cli.StringFlag{
 				Name:  "vol",
@@ -34,6 +35,10 @@ func NewCreateDiskCommand() *cli.Command {
 			&cli.StringFlag{
 				Name:  "capacity",
 				Usage: "storage vol name",
+			},
+			&cli.StringFlag{
+				Name:  "format",
+				Usage: "storage vol format",
 			},
 		},
 	}
@@ -47,17 +52,39 @@ func createDisk(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsVolExist(pool, ctx.String("vol"), ctx.String("type"))
+	exist := virsh.IsDiskExist(pool, ctx.String("vol"), ctx.String("type"))
 	if exist {
 		return errors.New(fmt.Sprintf("the volume %+v is already exist", ctx.String("vol")))
 	}
 
-	_, err = virsh.CreateVol(pool, ctx.String("vol"), ctx.String("type"), ctx.String("capacity"), ctx.String("format"))
+	bytes, err := humanize.ParseBytes(ctx.String("capacity"))
+	if err != nil {
+		return err
+	}
 
-	// update vmp
+	if err = virsh.CreateDisk(pool, ctx.String("vol"), ctx.String("type"), ctx.String("capacity"), ctx.String("format")); err != nil {
+		return err
+	}
+	// craete config.json
+	diskPath, _ := virsh.ParseDiskDir(pool, ctx.String("vol"), ctx.String("type"))
+	volPath, _ := virsh.ParseDiskPath(pool, ctx.String("vol"), ctx.String("type"), ctx.String("format"))
+	cfg := map[string]string{
+		"name":    ctx.String("vol"),
+		"dir":     diskPath,
+		"current": volPath,
+		"pool":    pool,
+	}
+	if err := virsh.CreateConfig(diskPath, cfg); err != nil {
+		return err
+	}
+	// update vmd
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	flags := utils.ParseFlagMap(ctx)
-	extra := map[string]interface{}{}
+	delete(flags, "capacity")
+	extra := map[string]interface{}{
+		"current":  volPath,
+		"capacity": humanize.Bytes(bytes),
+	}
 	flags = utils.MergeFlags(flags, extra)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, flags); err != nil {
 		return err

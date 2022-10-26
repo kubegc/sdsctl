@@ -33,6 +33,18 @@ func CreateDir(path string) {
 	}
 }
 
+func IsDir(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
+}
+
+func IsFile(path string) bool {
+	return !IsDir(path)
+}
+
 //func GetHomeDir() string {
 //	if home, err := os.UserHomeDir(); err != nil {
 //		return "/"
