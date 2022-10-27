@@ -3,6 +3,8 @@ package constant
 import "net/http"
 
 // grpc status & msg
+const SocketPath = "/var/lib/libvirt/ks.sock"
+
 const (
 	STATUS_OK         = http.StatusOK
 	STATUS_BADREQUEST = http.StatusBadRequest

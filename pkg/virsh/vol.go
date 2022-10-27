@@ -108,6 +108,7 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 			Format: &libvirtxml.StorageVolumeTargetFormat{
 				Type: format,
 			},
+			NoCOW: &struct{}{},
 		},
 	}
 	volXML, err := volDesc.Marshal()

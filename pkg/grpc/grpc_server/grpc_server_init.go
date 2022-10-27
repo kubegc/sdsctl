@@ -16,6 +16,7 @@ type GrpcServer struct {
 	ctx     context.Context
 	stopCh  chan struct{}
 	port    int
+	socket  string
 	service *internal.NetworkControllerService
 }
 
@@ -26,15 +27,53 @@ func GetGServer() *GrpcServer {
 	return gServer
 }
 
-func NewGrpcServer(port int, ctx context.Context, stopCh chan struct{}) *GrpcServer {
+func NewGrpcServer(port int, socket string, ctx context.Context, stopCh chan struct{}) *GrpcServer {
 	s := &GrpcServer{
 		ctx:    ctx,
 		stopCh: stopCh,
 		port:   port,
+		socket: socket,
 	}
 
 	s.service = internal.NewLiteNCService()
 	return s
+}
+
+func (s *GrpcServer) StartGrpcServerUnixSocket() error {
+	serverAddress, err := net.ResolveUnixAddr("unix", s.socket)
+	if err != nil {
+		logger.Errorf("failed to listen: %v", err)
+		return err
+	}
+	lis, err := net.ListenUnix("unix", serverAddress)
+	if err != nil {
+		logger.Errorf("listenErr: %v", err)
+		return err
+	}
+
+	gopts := []grpc.ServerOption{}
+	server := grpc.NewServer(gopts...)
+	// register reflection for grpcurl service
+	reflection.Register(server)
+	// register service
+	pb_gen.RegisterSdsCtlServiceServer(server, s)
+	logger.Infof("grpc server ready to listen %s", s.socket)
+
+	go func() {
+		for {
+			select {
+			case <-s.stopCh:
+				server.GracefulStop()
+				return
+			}
+		}
+	}()
+
+	if err := server.Serve(lis); err != nil {
+		logger.Errorf("grpc server failed to serve: %v", err)
+		return err
+	}
+	return nil
 }
 
 func (s *GrpcServer) StartGrpcServerTcp() error {
