@@ -1,6 +1,8 @@
 package constant
 
-import "net/http"
+import (
+	"net/http"
+)
 
 // grpc status & msg
 const SocketPath = "/var/lib/libvirt/ks.sock"

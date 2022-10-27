@@ -9,6 +9,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type GrpcServer struct {
@@ -50,6 +53,8 @@ func (s *GrpcServer) StartGrpcServerUnixSocket() error {
 		logger.Errorf("listenErr: %v", err)
 		return err
 	}
+	defer lis.Close()
+	go s.cleanUp()
 
 	gopts := []grpc.ServerOption{}
 	server := grpc.NewServer(gopts...)
@@ -110,4 +115,25 @@ func (s *GrpcServer) StartGrpcServerTcp() error {
 		return err
 	}
 	return nil
+}
+
+// server exit gracefully
+func (server *GrpcServer) cleanUp() {
+
+	defer logger.Info("server cleanup done")
+
+	c := make(chan os.Signal, 1)
+	// watch ctrl+c or kill pid
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+	<-c
+	logger.Info("clean up")
+
+	select {
+	case <-server.stopCh:
+		break
+	default:
+		close(server.stopCh)
+	}
+	// code zero indicates success
+	//os.Exit(0)
 }
