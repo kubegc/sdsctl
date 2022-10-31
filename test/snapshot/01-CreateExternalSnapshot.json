@@ -1,0 +1,23 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDiskSnapshot",
+  "metadata": {
+    "name": "disktest111-snapshot",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "createDiskExternalSnapshot": {
+        "type": "localfs",
+        "pool": "pooltest111",
+        "source": "disktest111",
+        "name": "disktest111-snapshot",
+        "format": "qcow2",
+        "domain": "test111"
+      }
+    }
+  }
+}

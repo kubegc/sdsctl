@@ -12,3 +12,14 @@ func TestGetVMDiskSpec(t *testing.T) {
 		fmt.Printf("disk:%+v\n", disk)
 	}
 }
+
+// todo with domain
+func TestChangeVMDisk(t *testing.T) {
+	err := ChangeVMDisk("test", "/var/lib/libvirt/pooltest2/disktest4/disktest4.qcow2", "/var/lib/libvirt/pooltest2/disktest4/disktest4.qcow2")
+	fmt.Printf("err:%+v\n", err)
+}
+
+func TestChangeVMDisk2(t *testing.T) {
+	err := ChangeVMDisk("test", "/var/lib/libvirt/pooltest2/test2.qcow2", "/var/lib/libvirt/pooltest2/test.qcow2")
+	fmt.Printf("err:%+v\n", err)
+}

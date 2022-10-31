@@ -27,7 +27,7 @@ func GetCRDSpec(spec []byte, key string) (map[string]string, error) {
 	value := parse.Get(key)
 	res := make(map[string]string)
 	if err := json.Unmarshal([]byte(value.Raw), &res); err != nil {
-		return nil, err
+		return res, err
 	}
 	return res, nil
 }

@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachine",
   "metadata": {
-    "name": "test",
+    "name": "test111",
     "labels": {
       "host": "vm.wanna"
     }

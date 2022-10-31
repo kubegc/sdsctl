@@ -11,6 +11,9 @@ func GetVMDiskSpec(domainName string) ([]libvirtxml.DomainDisk, error) {
 	conn, err := GetConn()
 	defer conn.Close()
 	domain, err := conn.LookupDomainByName(domainName)
+	if err != nil {
+		return nil, err
+	}
 	// parse old format
 	vxml, err := domain.GetXMLDesc(0)
 	if err != nil {
@@ -50,4 +53,38 @@ func CheckVMDiskSpec(domainName, diskPath string) (map[string]string, error) {
 		}
 	}
 	return res, errors.New(fmt.Sprintf("domain %s has no disk %s", domainName, diskPath))
+}
+
+func UpdateVMDiskSpec(domainName, source, target string) (*libvirtxml.DomainDisk, error) {
+	disks, err := GetVMDiskSpec(domainName)
+	if err != nil {
+		return nil, err
+	}
+	for _, disk := range disks {
+		if disk.Source != nil && disk.Source.File.File == source {
+			disk.Source.File.File = target
+			return &disk, nil
+		}
+	}
+	return nil, fmt.Errorf("no vm disk named %s", source)
+}
+
+func ChangeVMDisk(domainName, source, target string) error {
+	conn, err := GetConn()
+	defer conn.Close()
+	domain, err := conn.LookupDomainByName(domainName)
+	if err != nil {
+		return err
+	}
+
+	// update vm disk
+	disksSpec, err := UpdateVMDiskSpec(domainName, source, target)
+	if err != nil {
+		return err
+	}
+	xmlStr, err := disksSpec.Marshal()
+	if err = domain.UpdateDeviceFlags(xmlStr, 0); err != nil {
+		return err
+	}
+	return nil
 }

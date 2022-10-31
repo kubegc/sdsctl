@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/user"
+	"path/filepath"
 	"syscall"
 )
 
@@ -43,6 +44,10 @@ func IsDir(path string) bool {
 
 func IsFile(path string) bool {
 	return !IsDir(path)
+}
+
+func GetDir(path string) string {
+	return filepath.Dir(path)
 }
 
 //func GetHomeDir() string {

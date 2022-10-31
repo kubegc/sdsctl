@@ -28,12 +28,12 @@ const (
 	DefaultVersion   = "v1"
 	DefaultNamespace = "default"
 
-	VMD_Kind  = "VirtualMachineDisk"
-	VMDS_Kind = "virtualmachinedisks"
-	VMP_Kind  = "VirtualMachinePool"
-	VMPS_Kind = "virtualmachinepools"
-	VMS_Kind  = "VirtualMachineDiskSnapshot"
-	VMSS_Kind = "virtualmachinedisksnapshots"
+	VMD_Kind     = "VirtualMachineDisk"
+	VMDS_Kind    = "virtualmachinedisks"
+	VMP_Kind     = "VirtualMachinePool"
+	VMPS_Kind    = "virtualmachinepools"
+	VMDSN_Kind   = "VirtualMachineDiskSnapshot"
+	VMDSNS_Kinds = "virtualmachinedisksnapshots"
 
 	CRD_Pool_Key   = "pool"
 	CRD_Volume_Key = "volume"
