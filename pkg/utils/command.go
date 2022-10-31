@@ -32,8 +32,25 @@ func (comm *Command) Execute() (string, error) {
 	if err != nil {
 		return "", errors.New(string(stderr.Bytes()))
 	}
-	fmt.Println(string(stdout.Bytes()))
+	//fmt.Println(string(stdout.Bytes()))
 	return Oneline(stdout.Bytes()), nil
+}
+
+func (comm *Command) ExecuteWithPlain() ([]byte, error) {
+	scmd := comm.Cmd
+	for k, v := range comm.Params {
+		scmd += fmt.Sprintf(" %s %s ", k, v)
+	}
+	cmd := exec.Command("bash", "-c", scmd)
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+	err := cmd.Run()
+	if err != nil {
+		return nil, errors.New(string(stderr.Bytes()))
+	}
+	//fmt.Println(string(stdout.Bytes()))
+	return stdout.Bytes(), nil
 }
 
 type CommandList struct {

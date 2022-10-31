@@ -34,8 +34,47 @@ func GetBackFile(path string) (string, error) {
 		return "", err
 	}
 	res := make(map[string]string)
-	if err := json.Unmarshal([]byte(output), res); err != nil {
+	if err := json.Unmarshal([]byte(output), &res); err != nil {
 		return "", err
 	}
+	if _, ok := res["backing-filename"]; !ok {
+		return "", nil
+	}
 	return res["backing-filename"], nil
+}
+
+func GetBackChainFiles(snapshotFiles []string, backFile string) (map[string]bool, error) {
+	res := make(map[string]bool)
+	for _, snapshotFile := range snapshotFiles {
+		files, err := GetOneBackChainFiles(snapshotFile)
+		if err != nil {
+			return res, err
+		}
+		if _, ok := files[backFile]; ok {
+			res[snapshotFile] = true
+		}
+	}
+	return res, nil
+}
+
+func GetOneBackChainFiles(path string) (map[string]bool, error) {
+	res := make(map[string]bool)
+	cmd := &utils.Command{
+		Cmd: fmt.Sprintf("qemu-img info -U --backing-chain --output json %s", path),
+	}
+	output, err := cmd.ExecuteWithPlain()
+	if err != nil {
+		return res, err
+	}
+	infos := make([]map[string]interface{}, 0)
+	if err := json.Unmarshal(output, &infos); err != nil {
+		return res, err
+	}
+	for _, info := range infos {
+		file, ok := info["backing-filename"]
+		if ok {
+			res[file.(string)] = true
+		}
+	}
+	return res, nil
 }

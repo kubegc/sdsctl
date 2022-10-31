@@ -50,6 +50,11 @@ func GetDir(path string) string {
 	return filepath.Dir(path)
 }
 
+func GetFilesUnderDir(dirPath string) []string {
+	files, _ := filepath.Glob(filepath.Join(dirPath, "*"))
+	return files
+}
+
 //func GetHomeDir() string {
 //	if home, err := os.UserHomeDir(); err != nil {
 //		return "/"

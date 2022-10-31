@@ -28,6 +28,16 @@ func GetVMDiskSpec(domainName string) ([]libvirtxml.DomainDisk, error) {
 	return disks, nil
 }
 
+func IsVMActive(domainName string) (bool, error) {
+	conn, err := GetConn()
+	defer conn.Close()
+	domain, err := conn.LookupDomainByName(domainName)
+	if err != nil {
+		return false, err
+	}
+	return domain.IsActive()
+}
+
 func ParseVMDiskSpec(domainName string) (map[string]string, error) {
 	disks, err := GetVMDiskSpec(domainName)
 	if err != nil {

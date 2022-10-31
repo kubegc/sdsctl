@@ -23,3 +23,9 @@ func TestChangeVMDisk2(t *testing.T) {
 	err := ChangeVMDisk("test", "/var/lib/libvirt/pooltest2/test2.qcow2", "/var/lib/libvirt/pooltest2/test.qcow2")
 	fmt.Printf("err:%+v\n", err)
 }
+
+func TestIsVMActive(t *testing.T) {
+	active, err := IsVMActive("test111")
+	fmt.Printf("err:%+v\n", err)
+	fmt.Printf("active:%+v\n", active)
+}
