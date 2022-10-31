@@ -1,0 +1,18 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDisk",
+  "metadata": {
+    "name": "nfsdisk111",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "deleteDisk": {
+        "pool": "nfspool"
+      }
+    }
+  }
+}

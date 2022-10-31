@@ -1,0 +1,25 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachine",
+  "metadata": {
+    "name": "test",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "createAndStartVMFromISO": {
+        "memory": "1024",
+        "vcpus": "1",
+        "os_variant": "centos7.0",
+        "cdrom": "/var/lib/libvirt/iso/centos7-minimal-1511.iso",
+        "disk": "/var/lib/libvirt/pooltest2/disktest4/disktest4.qcow2,format=qcow2",
+        "network": "type=bridge,source=virbr0",
+        "graphics": "vnc,listen=0.0.0.0,password=Onceas@vnc",
+        "noautoconsole": true
+      }
+    }
+  }
+}

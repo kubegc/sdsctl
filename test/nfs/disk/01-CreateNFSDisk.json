@@ -1,0 +1,21 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDisk",
+  "metadata": {
+    "name": "nfsdisk111",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "createDisk": {
+        "type": "netfs",
+        "pool": "nfspool",
+        "capacity": "2G",
+        "format": "qcow2"
+      }
+    }
+  }
+}
