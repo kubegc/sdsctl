@@ -6,11 +6,17 @@ import (
 	"fmt"
 	"github.com/urfave/cli/v2"
 	"os/exec"
+	"strings"
 )
 
 type Command struct {
 	Cmd    string
 	Params map[string]string
+}
+
+func Oneline(in []byte) string {
+	str := strings.TrimSpace(string(in))
+	return strings.Replace(str, "\n", ". ", -1)
 }
 
 func (comm *Command) Execute() (string, error) {
@@ -27,7 +33,7 @@ func (comm *Command) Execute() (string, error) {
 		return "", errors.New(string(stderr.Bytes()))
 	}
 	fmt.Println(string(stdout.Bytes()))
-	return string(stdout.Bytes()), nil
+	return Oneline(stdout.Bytes()), nil
 }
 
 type CommandList struct {

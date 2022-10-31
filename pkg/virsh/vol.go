@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetVol(poolName, volName, vtype string) (*libvirt.StorageVol, error) {
+func GetVol(poolName, volName string) (*libvirt.StorageVol, error) {
 	conn, err := GetConn()
 	defer conn.Close()
 	if err != nil {
@@ -27,8 +27,8 @@ func GetVol(poolName, volName, vtype string) (*libvirt.StorageVol, error) {
 	return vol, nil
 }
 
-func IsVolExist(poolName, volName, vtype string) bool {
-	_, err := GetVol(poolName, volName, vtype)
+func IsVolExist(poolName, volName string) bool {
+	_, err := GetVol(poolName, volName)
 	if err != nil {
 		return false
 	}
@@ -88,7 +88,7 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 	//	os.MkdirAll(diskPath, os.ModePerm)
 	//}
 	fmt.Println(diskPath)
-	//pool, err = CreatePool(volName, vtype, diskPath)
+	//pool, err = CreatePool(volName, diskPath)
 	//if err != nil {
 	//	return nil, err
 	//}
@@ -118,8 +118,8 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 	return pool.StorageVolCreateXML(volXML, 0)
 }
 
-func DeleteVol(poolName, volName, vtype string) error {
-	vol, err := GetVol(poolName, volName, vtype)
+func DeleteVol(poolName, volName string) error {
+	vol, err := GetVol(poolName, volName)
 	if err != nil {
 		return err
 	}
@@ -127,8 +127,8 @@ func DeleteVol(poolName, volName, vtype string) error {
 	return vol.Free()
 }
 
-func ResizeVol(poolName, volName, vtype, capacity string) error {
-	vol, err := GetVol(poolName, volName, vtype)
+func ResizeVol(poolName, volName, capacity string) error {
+	vol, err := GetVol(poolName, volName)
 	if err != nil {
 		return err
 	}
@@ -136,12 +136,12 @@ func ResizeVol(poolName, volName, vtype, capacity string) error {
 	return vol.Resize(bytes, libvirt.STORAGE_VOL_RESIZE_SHRINK)
 }
 
-func CloneVol(poolName, volName, newVolName, vtype string) error {
+func CloneVol(poolName, volName, newVolName string) error {
 	pool, err := GetPoolInfo(poolName)
 	if err != nil {
 		return err
 	}
-	vol, err := GetVol(poolName, volName, vtype)
+	vol, err := GetVol(poolName, volName)
 	if err != nil {
 		return err
 	}

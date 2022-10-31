@@ -3,6 +3,7 @@ package virsh
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"os"
 	"os/exec"
 	"strconv"
@@ -40,11 +41,6 @@ type Snapshot struct {
 	Name    string
 	Date    time.Time
 	VMClock time.Time
-}
-
-func oneLine(in []byte) string {
-	str := strings.TrimSpace(string(in))
-	return strings.Replace(str, "\n", ". ", -1)
 }
 
 // NewImage constructs a new Image data structure based
@@ -100,7 +96,7 @@ func (i *Image) retreiveInfos() error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("'qemu-img info' output: %s", oneLine(out))
+		return fmt.Errorf("'qemu-img info' output: %s", utils.Oneline(out))
 	}
 
 	err = json.Unmarshal(out, &info)
@@ -131,6 +127,34 @@ func (i *Image) retreiveInfos() error {
 	return nil
 }
 
+func (i *Image) ResizeImage(capacity string) error {
+	extra := ""
+	if strings.HasPrefix(capacity, "-") {
+		extra = "--shrink"
+	}
+	scmd := fmt.Sprintf("qemu-img resize %s %s %s", extra, i.Path, capacity)
+	cmd := exec.Command("bash", "-c", scmd)
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("'qemu-img resize' output: %s", utils.Oneline(out))
+	}
+
+	return nil
+}
+
+func (i *Image) CloneImage(capacity string) error {
+	cmd := exec.Command("qemu-img", "rebase", "-c", i.Path, capacity)
+	i.Size, _ = parseCapacity(capacity)
+
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("'qemu-img clone' output: %s", utils.Oneline(out))
+	}
+
+	return nil
+}
+
 // Snapshots returns the snapshots contained
 // within the image
 func (i Image) Snapshots() ([]Snapshot, error) {
@@ -153,7 +177,7 @@ func (i *Image) CreateSnapshot(name string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("'qemu-img snapshot' output: %s", oneLine(out))
+		return fmt.Errorf("'qemu-img snapshot' output: %s", utils.Oneline(out))
 	}
 
 	return nil
@@ -166,7 +190,7 @@ func (i Image) RestoreSnapshot(name string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("'qemu-img snapshot' output: %s", oneLine(out))
+		return fmt.Errorf("'qemu-img snapshot' output: %s", utils.Oneline(out))
 	}
 
 	return nil
@@ -179,7 +203,7 @@ func (i Image) DeleteSnapshot(name string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("'qemu-img snapshot' output: %s", oneLine(out))
+		return fmt.Errorf("'qemu-img snapshot' output: %s", utils.Oneline(out))
 	}
 
 	return nil
@@ -214,7 +238,7 @@ func (i Image) Create() error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("'qemu-img create' output: %s", oneLine(out))
+		return fmt.Errorf("'qemu-img create' output: %s", utils.Oneline(out))
 	}
 
 	return nil
@@ -229,7 +253,7 @@ func (i *Image) Rebase(backingFile string) error {
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("'qemu-img rebase' output: %s", oneLine(out))
+		return fmt.Errorf("'qemu-img rebase' output: %s", utils.Oneline(out))
 	}
 
 	return nil

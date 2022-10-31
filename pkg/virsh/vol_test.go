@@ -6,7 +6,7 @@ import (
 )
 
 func TestShowVol(t *testing.T) {
-	vol, err := GetVol("pooltest2", "disktest", "dir")
+	vol, err := GetVol("pooltest2", "disktest")
 	fmt.Printf("vol:%+v\n", vol)
 	fmt.Printf("err:%+v\n", err)
 }
@@ -18,16 +18,16 @@ func TestCreateVol(t *testing.T) {
 }
 
 func TestDeleteVol(t *testing.T) {
-	err := DeleteVol("pooltest2", "disktest4", "dir")
+	err := DeleteVol("pooltest2", "disktest4")
 	fmt.Printf("err:%+v\n", err)
 }
 
 func TestResizeVol(t *testing.T) {
-	err := ResizeVol("pooltest2", "test3.qcow2", "dir", "5.5G")
+	err := ResizeVol("pooltest2", "test3.qcow2", "5.5G")
 	fmt.Printf("err:%+v\n", err)
 }
 
 func TestCloneVol(t *testing.T) {
-	err := CloneVol("pooltest2", "test2.qcow2", "test3.qcow2", "dir")
+	err := CloneVol("pooltest2", "test2.qcow2", "test3.qcow2")
 	fmt.Printf("err:%+v\n", err)
 }

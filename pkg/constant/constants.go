@@ -32,6 +32,8 @@ const (
 	VMDS_Kind = "virtualmachinedisks"
 	VMP_Kind  = "VirtualMachinePool"
 	VMPS_Kind = "virtualmachinepools"
+	VMS_Kind  = "VirtualMachineDiskSnapshot"
+	VMSS_Kind = "virtualmachinedisksnapshots"
 
 	CRD_Pool_Key   = "pool"
 	CRD_Volume_Key = "volume"
