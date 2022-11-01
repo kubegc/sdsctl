@@ -48,11 +48,8 @@ func NewCreateExternalSnapshotCommand() *cli.Command {
 	}
 }
 
-func backup(path string) {
-	cmd := utils.Command{
-		Cmd: fmt.Sprintf("rm -rf %s", path),
-	}
-	cmd.Execute()
+func createBackup(path string) {
+	os.Remove(path)
 }
 
 func createExternalSnapshot(ctx *cli.Context) error {
@@ -113,7 +110,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	vmd, err := ksgvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("source"))
 	if err != nil {
-		backup(targetSSPath)
+		createBackup(targetSSPath)
 		logger.Errorf("fail to get vmd:%+v", err)
 		return err
 	}
@@ -122,7 +119,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	res["snapshot"] = ctx.String("name")
 	res["current"] = targetSSPath
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("source"), constant.CRD_Volume_Key, res); err != nil {
-		backup(targetSSPath)
+		createBackup(targetSSPath)
 		logger.Errorf("fail to update vmd:%+v", err)
 		return err
 	}
@@ -131,7 +128,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	ksgvr2 := k8s.NewKsGvr(constant.VMDSNS_Kinds)
 	vms, err := ksgvr2.Get(ctx.Context, constant.DefaultNamespace, ctx.String("name"))
 	if err != nil {
-		backup(targetSSPath)
+		createBackup(targetSSPath)
 		logger.Errorf("fail to get vmdsn:%+v", err)
 		return err
 	}
@@ -144,7 +141,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	// todo ?
 	res["full_backing_filename"] = config["current"]
 	if err = ksgvr2.Update(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
-		backup(targetSSPath)
+		createBackup(targetSSPath)
 		logger.Errorf("fail to update vmdsn:%+v", err)
 		return err
 	}

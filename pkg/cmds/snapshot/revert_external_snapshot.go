@@ -8,6 +8,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"os"
 	"path/filepath"
 )
 
@@ -47,6 +48,10 @@ func NewRevertExternalSnapshotCommand() *cli.Command {
 	}
 }
 
+func revertBackup(path string) {
+	os.Remove(path)
+}
+
 // revert snapshot {name} 到上一个版本（back file）
 func revertExternalSnapshot(ctx *cli.Context) error {
 	domain := ctx.String("domain")
@@ -69,6 +74,15 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	if !virsh.CheckDiskInUse(config["current"]) {
 		return errors.New("current disk in use, plz check or set real domain field")
 	}
+	if domain != "" {
+		vmActive, err := virsh.IsVMActive(domain)
+		if err != nil {
+			return err
+		}
+		if vmActive {
+			return fmt.Errorf("domain %s is still active, plz stop it first", domain)
+		}
+	}
 	backFile, err := virsh.GetBackFile(config["current"])
 	if err != nil {
 		return err
@@ -81,18 +95,16 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	// change vm disk
 	if domain != "" {
 		if err := virsh.ChangeVMDisk(domain, config["current"], newFilePath); err != nil {
+			revertBackup(newFilePath)
 			return err
 		}
 	}
-
-	// write config: current point to snapshot
-	config["current"] = newFilePath
-	virsh.CreateConfig(diskDir, config)
 
 	// update vmd
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	vmd, err := ksgvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("source"))
 	if err != nil {
+		revertBackup(newFilePath)
 		return err
 	}
 	res, _ := k8s.GetCRDSpec(vmd.Spec.Raw, constant.CRD_Volume_Key)
@@ -101,8 +113,13 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	res["full_backing_filename"] = backFile
 	// todo lifecycle?
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("source"), constant.CRD_Volume_Key, res); err != nil {
+		revertBackup(newFilePath)
 		return err
 	}
+
+	// write config: current point to snapshot
+	config["current"] = newFilePath
+	virsh.CreateConfig(diskDir, config)
 
 	return nil
 }
