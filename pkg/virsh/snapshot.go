@@ -78,3 +78,36 @@ func GetOneBackChainFiles(path string) (map[string]bool, error) {
 	}
 	return res, nil
 }
+
+func LiveBlockForVMDisk(domainName, path, base string) error {
+	parseBase := "''"
+	if base != "" {
+		parseBase = base
+	}
+	cmd := utils.Command{
+		Cmd: "virsh blockpull",
+		Params: map[string]string{
+			"--domain": domainName,
+			"--path":   path,
+			"--base":   parseBase,
+			"--wait":   "",
+		},
+	}
+	_, err := cmd.Execute()
+	return err
+}
+
+func RebaseDiskSnapshot(base, path string) error {
+	parseBase := "''"
+	if base != "" {
+		parseBase = base
+	}
+	cmd := utils.Command{
+		Cmd: "qemu-img rebase -b %s %s",
+		Params: map[string]string{
+			"-b": fmt.Sprintf("%s %s", parseBase, path),
+		},
+	}
+	_, err := cmd.Execute()
+	return err
+}

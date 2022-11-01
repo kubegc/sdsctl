@@ -47,6 +47,7 @@ func NewRevertExternalSnapshotCommand() *cli.Command {
 	}
 }
 
+// revert snapshot {name} 到上一个版本（back file）
 func revertExternalSnapshot(ctx *cli.Context) error {
 	domain := ctx.String("domain")
 	pool := ctx.String("pool")
