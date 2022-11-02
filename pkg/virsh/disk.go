@@ -230,13 +230,7 @@ func CreateFullCopyDisk(source, sourceFormat, targetDiskDir string) error {
 func CreateDiskWithBacking(sourceFormat, source, targetFormat, targetDiskPath string) error {
 	// 指定qcow2 image创建cow overlay
 	cmd := &utils.Command{
-		Cmd: "qemu-img create ",
-		Params: map[string]string{
-			"-f": sourceFormat,
-			"-b": source,
-			"-F": targetFormat,
-			"":   targetDiskPath,
-		},
+		Cmd: fmt.Sprintf("qemu-img create -f %s -b %s -F %s %s", sourceFormat, source, targetFormat, targetDiskPath),
 	}
 	_, err := cmd.Execute()
 	return err

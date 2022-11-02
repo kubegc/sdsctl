@@ -4,9 +4,6 @@ virsh destroy test111
 virsh undefine test111
 
 kubectl apply -f ../vm/01-CreateVMFromISO.json
-sleep 5
-virsh start test111
-
 rm -rf /var/lib/libvirt/pooltest111/disktest111/snapshots
 cat << EOF > /var/lib/libvirt/pooltest111/disktest111/config.json
 {"current":"/var/lib/libvirt/pooltest111/disktest111/disktest111.qcow2","dir":"/var/lib/libvirt/pooltest111/disktest111","name":"disktest111","pool":"pooltest111"}
@@ -22,3 +19,14 @@ sleep 3
 kubectl apply -f 01-CreateExternalSnapshot-2.json
 sleep 2
 kubectl get vmdsn
+
+while true
+do
+  res=$(virsh list | grep test111 | wc -l)
+  if [[ $res == 1 ]]
+  then
+    break
+  fi
+  sleep 1
+  virsh start test111
+done
