@@ -80,10 +80,11 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	if !utils.Exists(targetSSDir) {
 		os.MkdirAll(targetSSDir, os.ModePerm)
 	}
-	targetSSPath := filepath.Join(targetSSDir, fmt.Sprintf("%s.%s", ctx.String("name"), ctx.String("format")))
+	//targetSSPath := filepath.Join(targetSSDir, fmt.Sprintf("%s.%s", ctx.String("name"), ctx.String("format")))
+	targetSSPath := filepath.Join(targetSSDir, ctx.String("name"))
 	if domain == "" { // without domain
 		// create snapshot
-		if err := virsh.CreateDiskWithBacking(ctx.String("format"), ctx.String("source"), ctx.String("format"), targetSSPath); err != nil {
+		if err := virsh.CreateDiskWithBacking(ctx.String("format"), config["current"], ctx.String("format"), targetSSPath); err != nil {
 			return err
 		}
 	} else { // with domain
@@ -116,7 +117,6 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	}
 	res, _ := k8s.GetCRDSpec(vmd.Spec.Raw, constant.CRD_Volume_Key)
 	res["disk"] = ctx.String("source")
-	res["snapshot"] = ctx.String("name")
 	res["current"] = targetSSPath
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("source"), constant.CRD_Volume_Key, res); err != nil {
 		createBackup(targetSSPath)
@@ -124,7 +124,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 		return err
 	}
 
-	// update vmsn
+	// update vmdsn
 	ksgvr2 := k8s.NewKsGvr(constant.VMDSNS_Kinds)
 	vms, err := ksgvr2.Get(ctx.Context, constant.DefaultNamespace, ctx.String("name"))
 	if err != nil {

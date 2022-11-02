@@ -31,18 +31,18 @@ func GetBackFile(path string) (string, error) {
 	cmd := &utils.Command{
 		Cmd: fmt.Sprintf("qemu-img info -U --output json %s", path),
 	}
-	output, err := cmd.Execute()
+	output, err := cmd.ExecuteWithPlain()
 	if err != nil {
 		return "", err
 	}
-	res := make(map[string]string)
-	if err := json.Unmarshal([]byte(output), &res); err != nil {
+	res := make(map[string]interface{})
+	if err := json.Unmarshal(output, &res); err != nil {
 		return "", err
 	}
 	if _, ok := res["backing-filename"]; !ok {
 		return "", nil
 	}
-	return res["backing-filename"], nil
+	return res["backing-filename"].(string), nil
 }
 
 func GetBackChainFiles(snapshotFiles []string, backFile string) (map[string]bool, error) {

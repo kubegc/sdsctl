@@ -16,3 +16,9 @@ func TestGetBackChainFiles(t *testing.T) {
 	//fmt.Printf("err:%+v\n", err)
 	//fmt.Printf("files:%+v\n", files)
 }
+
+func TestGetBackFile(t *testing.T) {
+	file, err := GetBackFile("/var/lib/libvirt/pooltest2/test3.qcow2")
+	fmt.Printf("err:%+v\n", err)
+	fmt.Printf("files:%+v\n", file)
+}

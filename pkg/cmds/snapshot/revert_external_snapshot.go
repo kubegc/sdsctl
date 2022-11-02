@@ -54,6 +54,7 @@ func revertBackup(path string) {
 
 // revert snapshot {name} 到上一个版本（back file）
 func revertExternalSnapshot(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	domain := ctx.String("domain")
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
@@ -62,6 +63,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
+
 	exist := virsh.IsDiskSnapshotExist(pool, ctx.String("source"), ctx.String("snapshot"))
 	if !exist {
 		return errors.New(fmt.Sprintf("the snapshot %+v is not exist", ctx.String("source")))
@@ -71,9 +73,10 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if !virsh.CheckDiskInUse(config["current"]) {
+	if virsh.CheckDiskInUse(config["current"]) {
 		return errors.New("current disk in use, plz check or set real domain field")
 	}
+
 	if domain != "" {
 		vmActive, err := virsh.IsVMActive(domain)
 		if err != nil {
@@ -87,15 +90,18 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+
 	newFile := utils.GetUUID()
 	newFilePath := filepath.Join(utils.GetDir(backFile), newFile)
 	if err := virsh.CreateDiskWithBacking(ctx.String("format"), backFile, ctx.String("format"), newFilePath); err != nil {
+		logger.Errorf("CreateDiskWithBacking err:%+v", err)
 		return err
 	}
 	// change vm disk
 	if domain != "" {
 		if err := virsh.ChangeVMDisk(domain, config["current"], newFilePath); err != nil {
 			revertBackup(newFilePath)
+			logger.Errorf("ChangeVMDisk err:%+v", err)
 			return err
 		}
 	}
@@ -111,8 +117,24 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	res["disk"] = ctx.String("source")
 	res["current"] = newFilePath
 	res["full_backing_filename"] = backFile
-	// todo lifecycle?
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("source"), constant.CRD_Volume_Key, res); err != nil {
+		revertBackup(newFilePath)
+		return err
+	}
+
+	// create new disk snapshot
+	logger.Infof("create vmdsn %s", newFile)
+	ksgvr2 := k8s.NewKsGvr(constant.VMDSNS_Kinds)
+	vmdsn, err := ksgvr2.Get(ctx.Context, constant.DefaultNamespace, ctx.String("name"))
+	if err != nil {
+		revertBackup(newFilePath)
+		return err
+	}
+	res2, _ := k8s.GetCRDSpec(vmdsn.Spec.Raw, constant.CRD_Volume_Key)
+	res2["snapshot"] = newFile
+	res2["current"] = newFilePath
+	res2["format"] = ctx.String("format")
+	if err = ksgvr2.Create(ctx.Context, constant.DefaultNamespace, newFile, constant.CRD_Volume_Key, res2); err != nil {
 		revertBackup(newFilePath)
 		return err
 	}

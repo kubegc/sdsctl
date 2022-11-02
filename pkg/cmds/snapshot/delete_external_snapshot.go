@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func NewDeleteExternalSnapshotCommand() *cli.Command {
@@ -45,6 +46,7 @@ func NewDeleteExternalSnapshotCommand() *cli.Command {
 }
 
 func deleteExternalSnapshot(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	domain := ctx.String("domain")
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
@@ -65,17 +67,20 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	targetSSDir := filepath.Join(diskDir, "snapshots")
 	targetSSPath := filepath.Join(targetSSDir, ctx.String("name"))
 	backFile, _ := virsh.GetBackFile(targetSSPath)
+	logger.Infof("back file of %s: %s", targetSSPath, backFile)
 	snapshotFiles := utils.GetFilesUnderDir(targetSSDir)
 	files, err := virsh.GetBackChainFiles(snapshotFiles, targetSSPath)
+	logger.Infof("delete files:%+v", files)
 	if err != nil {
 		return err
 	}
 	// add snapshot
-	files[ctx.String("name")] = true
+	files[filepath.Join(targetSSDir, ctx.String("name"))] = true
 
 	// 删除的是current的祖先
-	vol := ctx.String("source")
-	if _, ok := files[vol]; ok {
+	//vol := ctx.String("source")
+	ksgvr := k8s.NewKsGvr(constant.VMDSNS_Kinds)
+	if _, ok := files[config["current"]]; ok {
 		vmActive, err := virsh.IsVMActive(domain)
 		if err != nil {
 			return err
@@ -83,27 +88,49 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 		// todo check?
 		if domain != "" && vmActive {
 			// live chain
+			logger.Infof("domain LiveBlockForVMDisk")
 			if err := virsh.LiveBlockForVMDisk(domain, config["current"], backFile); err != nil {
 				return err
 			}
 		} else {
+			logger.Infof("no domain, RebaseDiskSnapshot")
 			if err := virsh.RebaseDiskSnapshot(backFile, config["current"], ""); err != nil {
 				return err
 			}
 		}
+		// update current
+		// 若是plain disk，则无需更新
+		if strings.Contains(config["current"], "snapshots") {
+			currentSnapShot := filepath.Base(config["current"])
+			vms, err := ksgvr.Get(ctx.Context, constant.DefaultNamespace, currentSnapShot)
+			if err != nil {
+				logger.Errorf("fail to get vmdsn:%+v", err)
+				return err
+			}
+			res, _ := k8s.GetCRDSpec(vms.Spec.Raw, constant.CRD_Volume_Key)
+			res["full_backing_filename"] = backFile
+			logger.Infof("res:%+v", res)
+			if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, currentSnapShot, constant.CRD_Volume_Key, res); err != nil {
+				logger.Errorf("fail to update vmdsn:%+v", err)
+				return err
+			}
+			//delete(files, filepath.Base(config["current"]))
+			delete(files, config["current"])
+		}
 	}
 
-	delete(files, filepath.Base(config["current"]))
+	logger.Infof("delete files:%+v", files)
 	// delete files
 	for k, _ := range files {
-		fullPath := filepath.Join(config["dir"], "snapshots", k)
-		os.Remove(fullPath)
+		//fullPath := filepath.Join(config["dir"], "snapshots", k)
+		os.Remove(k)
 	}
 
 	// delete vmdsn
-	ksgvr := k8s.NewKsGvr(constant.VMDSNS_Kinds)
+
 	for k, _ := range files {
-		if err := ksgvr.Delete(ctx.Context, constant.DefaultNamespace, k); err != nil {
+		vmdsnName := filepath.Base(k)
+		if err := ksgvr.Delete(ctx.Context, constant.DefaultNamespace, vmdsnName); err != nil {
 			return err
 		}
 	}
