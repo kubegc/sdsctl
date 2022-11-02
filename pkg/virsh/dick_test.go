@@ -6,22 +6,37 @@ import (
 )
 
 func TestCreateDisk(t *testing.T) {
-	err := CreateDisk("pooltest2", "disktest2", "localfs", "10G", "qcow2")
+	err := CreateDisk("pooltest2", "disktest4", "2G", "qcow2")
 	fmt.Printf("err: %+v", err)
 }
 
 func TestGetDisk(t *testing.T) {
-	disk, err := GetDisk("pooltest2", "disktest2", "localfs", "qcow2")
+	disk, err := GetDisk("pooltest2", "disktest2", "qcow2")
 	fmt.Printf("disk: %+v", disk)
 	fmt.Printf("err: %+v", err)
 }
 
 func TestIsDiskExist(t *testing.T) {
-	exist := IsDiskExist("pooltest2", "disktest2", "localfs")
+	exist := IsDiskExist("pooltest2", "disktest2")
 	fmt.Printf("exist: %+v", exist)
 }
 
 func TestDeleteDisk(t *testing.T) {
-	err := DeleteDisk("pooltest2", "disktest2", "localfs")
+	err := DeleteDisk("pooltest2", "disktest2")
 	fmt.Printf("err: %+v", err)
+}
+
+func TestResizeDisk(t *testing.T) {
+	err := ResizeDisk("pooltest2", "disktest4", "11G")
+	fmt.Printf("err: %+v", err)
+}
+
+func TestCheckDiskInUse(t *testing.T) {
+	use := CheckDiskInUse("/var/lib/libvirt/pooltest2/disktest4/disktest4.qcow2")
+	fmt.Printf("use:%+v\n", use)
+}
+
+func TestCheckDiskInUse2(t *testing.T) {
+	use := CheckDiskInUse("/var/lib/libvirt/pooltest2/disktest2/disktest2.qcow2")
+	fmt.Printf("use:%+v\n", use)
 }

@@ -87,7 +87,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 				return err
 			}
 		} else {
-			if err := virsh.RebaseDiskSnapshot(backFile, config["current"]); err != nil {
+			if err := virsh.RebaseDiskSnapshot(backFile, config["current"], ""); err != nil {
 				return err
 			}
 		}

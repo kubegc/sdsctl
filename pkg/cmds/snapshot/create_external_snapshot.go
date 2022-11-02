@@ -136,7 +136,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	res["disk"] = ctx.String("source")
 	res["pool"] = pool
 	res["snapshot"] = ctx.String("name")
-	res["current"] = config["current"]
+	res["current"] = targetSSPath
 	res["format"] = ctx.String("format")
 	// todo ?
 	res["full_backing_filename"] = config["current"]

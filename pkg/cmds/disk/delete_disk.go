@@ -42,12 +42,12 @@ func deleteDisk(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsDiskExist(pool, ctx.String("vol"), ctx.String("type"))
+	exist := virsh.IsDiskExist(pool, ctx.String("vol"))
 	if !exist {
 		return errors.New(fmt.Sprintf("the volume %+v is not exist", ctx.String("vol")))
 	}
 
-	if err = virsh.DeleteDisk(pool, ctx.String("vol"), ctx.String("type")); err != nil {
+	if err = virsh.DeleteDisk(pool, ctx.String("vol")); err != nil {
 		return err
 	}
 

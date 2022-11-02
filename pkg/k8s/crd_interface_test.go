@@ -57,3 +57,12 @@ func TestKsGvr_Delete(t *testing.T) {
 	err := ksgvr.Delete(context.TODO(), "default", "pooltest111")
 	fmt.Printf("err: %+v\n", err)
 }
+
+func TestKsGvr_Create(t *testing.T) {
+	ksgvr := NewKsGvr(constant.VMDS_Kind)
+	res := make(map[string]string)
+	res["key1"] = "value1"
+	res["key2"] = "value2"
+	err := ksgvr.Create(context.TODO(), constant.DefaultNamespace, "disktest222", constant.CRD_Volume_Key, res)
+	fmt.Printf("err: %+v\n", err)
+}

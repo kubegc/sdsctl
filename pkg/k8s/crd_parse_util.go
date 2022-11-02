@@ -14,6 +14,14 @@ func AddPowerStatus(bytes []byte, message, reason string) ([]byte, error) {
 	return UpdateCRDSpec(bytes, "status.conditions.state.waiting", statusMap)
 }
 
+func AddPowerStatusForInit(bytes []byte, message, reason string) ([]byte, error) {
+	statusMap := map[string]interface{}{
+		"message": message,
+		"reason":  reason,
+	}
+	return UpdateCRDSpec(bytes, "spec.status.conditions.state.waiting", statusMap)
+}
+
 func UpdateCRDSpec(spec []byte, key string, value interface{}) ([]byte, error) {
 	bytes, err := sjson.SetBytes(spec, key, value)
 	if err != nil {
@@ -30,4 +38,9 @@ func GetCRDSpec(spec []byte, key string) (map[string]string, error) {
 		return res, err
 	}
 	return res, nil
+}
+
+func GetNodeName(spec []byte) string {
+	parse := gjson.ParseBytes(spec)
+	return parse.Get("nodeName").String()
 }

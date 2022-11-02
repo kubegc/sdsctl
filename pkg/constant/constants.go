@@ -24,10 +24,12 @@ const (
 
 // k8s GVK
 const (
+	// crd group & version
 	DefaultGroup     = "doslab.io"
 	DefaultVersion   = "v1"
 	DefaultNamespace = "default"
 
+	// crd kind
 	VMD_Kind     = "VirtualMachineDisk"
 	VMDS_Kind    = "virtualmachinedisks"
 	VMP_Kind     = "VirtualMachinePool"
@@ -35,9 +37,12 @@ const (
 	VMDSN_Kind   = "VirtualMachineDiskSnapshot"
 	VMDSNS_Kinds = "virtualmachinedisksnapshots"
 
-	CRD_Pool_Key   = "pool"
-	CRD_Volume_Key = "volume"
+	// spec key
+	CRD_Pool_Key     = "pool"
+	CRD_Volume_Key   = "volume"
+	CRD_NodeName_Keu = "nodeName"
 
+	// vm pool status
 	CRD_Pool_Active   = "active"
 	CRD_Pool_Inactive = "inactive"
 

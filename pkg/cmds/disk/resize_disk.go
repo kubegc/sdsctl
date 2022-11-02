@@ -44,10 +44,10 @@ func resizeDisk(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsVolExist(pool, ctx.String("vol"), ctx.String("type"))
-	if exist {
-		return errors.New(fmt.Sprintf("the volume %+v is already exist", ctx.String("vol")))
+	exist := virsh.IsDiskExist(pool, ctx.String("vol"))
+	if !exist {
+		return errors.New(fmt.Sprintf("the volume %+v is not exist", ctx.String("vol")))
 	}
 
-	return virsh.ResizeVol(pool, ctx.String("vol"), ctx.String("type"), ctx.String("capacity"))
+	return virsh.ResizeDisk(pool, ctx.String("vol"), ctx.String("capacity"))
 }

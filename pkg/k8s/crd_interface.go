@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	yamltrans "github.com/ghodss/yaml"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/tidwall/sjson"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -13,6 +14,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer/yaml"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
@@ -46,10 +48,10 @@ func NewKsGvr(crdName string) KsGvr {
 
 var Client dynamic.Interface
 
-func GetClient() (dynamic.Interface, error) {
+func GetCRDClient() (dynamic.Interface, error) {
 	var err error
 	if Client == nil {
-		Client, err = NewClient()
+		Client, err = NewCRDClient()
 		if err != nil {
 			return nil, err
 		}
@@ -57,22 +59,27 @@ func GetClient() (dynamic.Interface, error) {
 	return Client, nil
 }
 
-func NewClient() (dynamic.Interface, error) {
+func NewCRDClient() (dynamic.Interface, error) {
 	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, err
 	}
 
-	client, err := dynamic.NewForConfig(config)
+	return dynamic.NewForConfig(config)
+}
+
+func NewClient() (*kubernetes.Clientset, error) {
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
+	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, err
 	}
-	return client, nil
+	return kubernetes.NewForConfig(config)
 }
 
 func (ks *KsGvr) Get(ctx context.Context, namespace string, name string) (*KsCrd, error) {
-	client, err := GetClient()
+	client, err := GetCRDClient()
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +111,45 @@ func (ks *KsGvr) Exist(ctx context.Context, namespace string, name string) (bool
 	return true, nil
 }
 
+var plural2kineMaps = map[string]string{
+	constant.VMDS_Kind:    constant.VMD_Kind,
+	constant.VMPS_Kind:    constant.VMP_Kind,
+	constant.VMDSNS_Kinds: constant.VMDSN_Kind,
+}
+
+func (ks *KsGvr) Create(ctx context.Context, namespace, name, key string, value interface{}) error {
+	hostName := GetVMHostName()
+	createData := fmt.Sprintf(`
+apiVersion: "%s/%s"
+kind: "%s"
+metadata:
+  name: "%s"
+  labels:
+    host: "%s"
+spec:
+  nodeName: "%s"
+  status: ''
+`, ks.gvr.Group, ks.gvr.Version, plural2kineMaps[ks.gvr.Resource], name, hostName, hostName)
+	jsonBytes, _ := yamltrans.YAMLToJSON([]byte(createData))
+	//fmt.Println(string(jsonBytes))
+	bytes, _ := sjson.SetBytes(jsonBytes, fmt.Sprintf("spec.%s", key), value)
+	bytes, _ = AddPowerStatusForInit(bytes, constant.CRD_Ready_Msg, constant.CRD_Ready_Reason)
+	//fmt.Println(string(bytes))
+	client, err := GetCRDClient()
+	if err != nil {
+		return err
+	}
+	decoder := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
+	obj := &unstructured.Unstructured{}
+	if _, _, err = decoder.Decode(bytes, nil, obj); err != nil {
+		return err
+	}
+	_, err = client.Resource(ks.gvr).Namespace(namespace).Create(ctx, obj, metav1.CreateOptions{})
+	return err
+}
+
 func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value interface{}) error {
-	client, err := GetClient()
+	client, err := GetCRDClient()
 	if err != nil {
 		return err
 	}
@@ -158,7 +202,7 @@ func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value 
 }
 
 func (ks *KsGvr) Delete(ctx context.Context, namespace string, name string) error {
-	client, err := GetClient()
+	client, err := GetCRDClient()
 	if err != nil {
 		return err
 	}

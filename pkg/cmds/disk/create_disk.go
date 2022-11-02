@@ -52,7 +52,7 @@ func createDisk(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsDiskExist(pool, ctx.String("vol"), ctx.String("type"))
+	exist := virsh.IsDiskExist(pool, ctx.String("vol"))
 	if exist {
 		return errors.New(fmt.Sprintf("the volume %+v is already exist", ctx.String("vol")))
 	}
@@ -62,12 +62,12 @@ func createDisk(ctx *cli.Context) error {
 		return err
 	}
 
-	if err = virsh.CreateDisk(pool, ctx.String("vol"), ctx.String("type"), ctx.String("capacity"), ctx.String("format")); err != nil {
+	if err = virsh.CreateDisk(pool, ctx.String("vol"), ctx.String("capacity"), ctx.String("format")); err != nil {
 		return err
 	}
 	// craete config.json
-	diskPath, _ := virsh.ParseDiskDir(pool, ctx.String("vol"), ctx.String("type"))
-	volPath, _ := virsh.ParseDiskPath(pool, ctx.String("vol"), ctx.String("type"), ctx.String("format"))
+	diskPath, _ := virsh.ParseDiskDir(pool, ctx.String("vol"))
+	volPath, _ := virsh.ParseDiskPath(pool, ctx.String("vol"), ctx.String("format"))
 	cfg := map[string]string{
 		"name":    ctx.String("vol"),
 		"dir":     diskPath,

@@ -7,6 +7,8 @@ import (
 )
 
 func CreateExternalSnapshot(domain, snapshot, diskPath, targetSSPath, noNeedSnapshotDisk, format string) error {
+	// --diskspec:snapshot=external
+	// If this option is not used, virsh creates internal snapshots, which are not recommended for use due to their lack of stability and optimization.
 	cmd := utils.Command{
 		Cmd: "virsh snapshot-create-as",
 		Params: map[string]string{
@@ -97,16 +99,20 @@ func LiveBlockForVMDisk(domainName, path, base string) error {
 	return err
 }
 
-func RebaseDiskSnapshot(base, path string) error {
+func RebaseDiskSnapshot(base, path, format string) error {
 	parseBase := "''"
 	if base != "" {
 		parseBase = base
 	}
 	cmd := utils.Command{
-		Cmd: "qemu-img rebase -b %s %s",
+		Cmd: "qemu-img rebase ",
 		Params: map[string]string{
-			"-b": fmt.Sprintf("%s %s", parseBase, path),
+			"-b": parseBase,
+			"":   path,
 		},
+	}
+	if format != "" {
+		cmd.Params["-f"] = format
 	}
 	_, err := cmd.Execute()
 	return err
