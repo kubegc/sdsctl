@@ -10,7 +10,7 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "revertDiskExternalSnapshot": {
+      "createDiskExternalSnapshot": {
         "type": "localfs",
         "pool": "pooltest111",
         "source": "disktest111",
