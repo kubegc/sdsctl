@@ -1,0 +1,22 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDisk",
+  "metadata": {
+    "name": "disktest111",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "cloneDisk": {
+        "type": "localfs",
+        "pool": "pooltest111",
+        "vol": "disktest111",
+        "newvol": "disktest111-clone",
+        "format": "qcow2"
+      }
+    }
+  }
+}

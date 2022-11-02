@@ -179,6 +179,9 @@ func ResizeDisk(poolName, volName, capacity string) error {
 	curr, _ := parseCapacity(capacity)
 	delta := int64(curr - image.Size)
 	deltaStr := fmt.Sprintf("%sb", strconv.FormatInt(delta, 10))
+	if delta == 0 {
+		return fmt.Errorf("no change for disk size!")
+	}
 	if delta > 0 {
 		deltaStr = "+" + deltaStr
 	}
