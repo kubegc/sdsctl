@@ -40,8 +40,5 @@ func showDisk(ctx *cli.Context) error {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
 
-	//info, _ := disk.GetInfo()
-	//ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
-
 	return nil
 }

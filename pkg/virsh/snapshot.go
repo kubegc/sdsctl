@@ -104,16 +104,14 @@ func RebaseDiskSnapshot(base, path, format string) error {
 	if base != "" {
 		parseBase = base
 	}
-	cmd := utils.Command{
-		Cmd: "qemu-img rebase ",
-		Params: map[string]string{
-			"-b": parseBase,
-			"":   path,
-		},
-	}
+	parseFormat := ""
 	if format != "" {
-		cmd.Params["-f"] = format
+		parseFormat = fmt.Sprintf("-f %s", format)
 	}
+	cmd := utils.Command{
+		Cmd: fmt.Sprintf("qemu-img rebase %s -b %s %s", parseFormat, parseBase, path),
+	}
+
 	_, err := cmd.Execute()
 	return err
 }

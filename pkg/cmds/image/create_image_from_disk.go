@@ -1,9 +1,7 @@
 package image
 
 import (
-	"errors"
 	"fmt"
-	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -25,16 +23,16 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 				Usage: "storage pool name",
 			},
 			&cli.StringFlag{
+				Name:  "vol",
+				Usage: "source storage disk file path",
+			},
+			&cli.StringFlag{
+				Name:  "targetpool",
+				Usage: "vmdi storage pool name",
+			},
+			&cli.StringFlag{
 				Name:  "name",
 				Usage: "storage volume disk name",
-			},
-			&cli.StringFlag{
-				Name:  "source",
-				Usage: "source storage image file",
-			},
-			&cli.StringFlag{
-				Name:  "full-copy",
-				Usage: "if full_copy, new disk will be created by snapshot",
 			},
 		},
 	}
@@ -43,25 +41,27 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 func createDiskFromImage(ctx *cli.Context) error {
 	//logger := utils.GetLogger()
 	pool := ctx.String("pool")
+	targetPool := ctx.String("targetpool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsDiskSnapshotExist(pool, ctx.String("source"), ctx.String("name"))
-	if exist {
-		return errors.New(fmt.Sprintf("the volume %+v is already exist", ctx.String("source")))
-	}
-
-	diskDir, _ := virsh.ParseDiskDir(pool, ctx.String("source"))
-	config, err := virsh.ParseConfig(diskDir)
+	active2, err := virsh.IsPoolActive(targetPool)
 	if err != nil {
 		return err
-	}
-	if !utils.Exists(config["current"]) {
-		return errors.New(fmt.Sprintf("current disk %s not exists", config["current"]))
+	} else if !active2 {
+		return fmt.Errorf("pool %+v is inactive", pool)
 	}
 
-	return nil
+	if !virsh.CheckPoolType(targetPool, ctx.String("vmdi")) {
+		return fmt.Errorf("pool type error")
+	}
+	if !virsh.IsDiskExist(pool, ctx.String("vol")) {
+		return fmt.Errorf("no storage vol %s exist", ctx.String("vol"))
+	}
+	sourceDiskdir, _ := virsh.ParseDiskDir(pool, ctx.String("vol"))
+	config, _ := virsh.ParseConfig(sourceDiskdir)
+	return createImage(ctx, config["current"], ctx.String("name"), pool)
 }

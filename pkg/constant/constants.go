@@ -36,6 +36,8 @@ const (
 	VMPS_Kind    = "virtualmachinepools"
 	VMDSN_Kind   = "VirtualMachineDiskSnapshot"
 	VMDSNS_Kinds = "virtualmachinedisksnapshots"
+	VMDI_KIND    = "VirtualMachineDiskImage"
+	VMDIS_KINDS  = "virtualmachinediskimages"
 
 	// spec key
 	CRD_Pool_Key     = "pool"

@@ -133,6 +133,7 @@ func (i *Image) ResizeImage(capacity string) error {
 		extra = "--shrink"
 	}
 	scmd := fmt.Sprintf("qemu-img resize %s %s %s", extra, i.Path, capacity)
+	fmt.Println(scmd)
 	cmd := exec.Command("bash", "-c", scmd)
 
 	out, err := cmd.CombinedOutput()

@@ -5,6 +5,8 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
+	"os"
+	"path/filepath"
 )
 
 func GetPoolInfo(name string) (*libvirt.StoragePool, error) {
@@ -143,6 +145,19 @@ func IsPoolActive(name string) (bool, error) {
 		return false, err
 	}
 	return pool.IsActive()
+}
+
+func CheckPoolType(pool, content string) bool {
+	poolDir, err := GetPoolTargetPath(pool)
+	if err != nil {
+		return false
+	}
+	contentPath := filepath.Join(poolDir, "content")
+	file, err := os.ReadFile(contentPath)
+	if err != nil {
+		return false
+	}
+	return string(file) == content
 }
 
 func GetPoolTargetPath(name string) (string, error) {
