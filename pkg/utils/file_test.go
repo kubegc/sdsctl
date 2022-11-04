@@ -14,3 +14,8 @@ func TestGetFilesUnderDir(t *testing.T) {
 	files := GetFilesUnderDir("/var/lib/libvirt/pooltest2")
 	fmt.Println(files)
 }
+
+func TestCopyRemoteFile(t *testing.T) {
+	err := CopyRemoteFile("192.168.100.102", "/var/lib/libvirt/pooltest2/disktest2", "/root/cptest")
+	fmt.Printf("err:%+v\n", err)
+}

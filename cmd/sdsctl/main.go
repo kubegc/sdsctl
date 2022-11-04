@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"github.com/kube-stack/sdsctl/pkg/cmds"
 	"github.com/kube-stack/sdsctl/pkg/cmds/disk"
+	"github.com/kube-stack/sdsctl/pkg/cmds/externalSnapshot"
+	"github.com/kube-stack/sdsctl/pkg/cmds/image"
+	"github.com/kube-stack/sdsctl/pkg/cmds/internalSnapshot"
 	"github.com/kube-stack/sdsctl/pkg/cmds/pool"
-	"github.com/kube-stack/sdsctl/pkg/cmds/snapshot"
 	"github.com/urfave/cli/v2"
 	"os"
 )
@@ -29,9 +31,19 @@ func main() {
 		disk.NewResizeDiskCommand(),
 
 		// disk external snapshot
-		snapshot.NewCreateExternalSnapshotCommand(),
-		snapshot.NewRevertExternalSnapshotCommand(),
-		snapshot.NewRevertExternalSnapshotCommand(),
+		externalSnapshot.NewCreateExternalSnapshotCommand(),
+		externalSnapshot.NewRevertExternalSnapshotCommand(),
+		externalSnapshot.NewDeleteExternalSnapshotCommand(),
+
+		// disk image
+		image.NewCreateDiskFromImageCommand(),
+		image.NewCreateDiskImageCommand(),
+		image.NewDeleteDiskImageCommand(),
+
+		// disk internal snapshot
+		internalSnapshot.NewCreateInternalSnapshotCommand(),
+		internalSnapshot.NewRevertInternalSnapshotCommand(),
+		internalSnapshot.NewDeleteInternalSnapshotCommand(),
 	}
 
 	if err := app.Run(os.Args); err != nil {

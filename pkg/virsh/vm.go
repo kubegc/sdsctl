@@ -28,6 +28,16 @@ func GetVMDiskSpec(domainName string) ([]libvirtxml.DomainDisk, error) {
 	return disks, nil
 }
 
+func IsVMExist(domainName string) bool {
+	conn, _ := GetConn()
+	defer conn.Close()
+	_, err := conn.LookupDomainByName(domainName)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func IsVMActive(domainName string) (bool, error) {
 	conn, err := GetConn()
 	defer conn.Close()
@@ -57,10 +67,9 @@ func CheckVMDiskSpec(domainName, diskPath string) (map[string]string, error) {
 	if err != nil {
 		return res, err
 	}
-	for k, _ := range res {
-		if k == diskPath {
-			return res, nil
-		}
+	_, ok := res[diskPath]
+	if ok {
+		return res, nil
 	}
 	return res, errors.New(fmt.Sprintf("domain %s has no disk %s", domainName, diskPath))
 }

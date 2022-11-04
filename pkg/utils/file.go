@@ -116,6 +116,22 @@ func CopyFile(src, dst string) error {
 	return nil
 }
 
+func CopyFromRemoteFile(ip, localPath, remotePath string) error {
+	cmd := &Command{
+		Cmd: fmt.Sprintf("scp -r root@%s:%s %s", ip, remotePath, localPath),
+	}
+	_, err := cmd.Execute()
+	return err
+}
+
+func CopyToRemoteFile(ip, localPath, remotePath string) error {
+	cmd := &Command{
+		Cmd: fmt.Sprintf("scp -r %s root@%s:%s", localPath, ip, remotePath),
+	}
+	_, err := cmd.Execute()
+	return err
+}
+
 func Pwd() (string, error) {
 	return os.Getwd()
 }
