@@ -1,6 +1,6 @@
 {
   "apiVersion": "doslab.io/v1",
-  "kind": "VirtualMachine",
+  "kind": "VirtualMachineDisk",
   "metadata": {
     "name": "disktest111",
     "labels": {
@@ -10,11 +10,10 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "createDiskInternalSnapshot": {
+      "revertDiskInternalSnapshot": {
         "type": "localfs",
-        "pool": "pooltest111",
-        "name": "disktest111",
-        "snapshotname": "disktest111-internal1"
+        "domain": "test111",
+        "snapshot": "test-snapshot2.qcow2"
       }
     }
   }
