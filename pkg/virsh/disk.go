@@ -27,13 +27,13 @@ func ParseSnapshotDir(poolName, volName, snapshotName string) (string, error) {
 	return snapshotNamePath, err
 }
 
-func ParseDiskPath(poolName, volName, format string) (string, error) {
+// func ParseDiskPath(poolName, volName, format string) (string, error) {
+func ParseDiskPath(poolName, volName string) (string, error) {
 	diskPath, err := ParseDiskDir(poolName, volName)
 	if err != nil {
 		return "", err
 	}
-	volFile := fmt.Sprintf("%s.%s", volName, format)
-	volPath := filepath.Join(diskPath, volFile)
+	volPath := filepath.Join(diskPath, volName)
 	return volPath, nil
 }
 
@@ -48,8 +48,8 @@ func CheckDiskInUse(path string) bool {
 	return false
 }
 
-func GetDisk(poolName, volName, format string) (*Image, error) {
-	volPath, err := ParseDiskPath(poolName, volName, format)
+func GetDisk(poolName, volName string) (*Image, error) {
+	volPath, err := ParseDiskPath(poolName, volName)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,7 @@ func CreateDisk(poolName, volName, capacity, format string) error {
 		os.MkdirAll(diskPath, os.ModePerm)
 	}
 	// create image
-	volPath, err := ParseDiskPath(poolName, volName, format)
+	volPath, err := ParseDiskPath(poolName, volName)
 	if err != nil {
 		return err
 	}

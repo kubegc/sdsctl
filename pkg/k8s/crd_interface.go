@@ -115,6 +115,7 @@ var plural2kineMaps = map[string]string{
 	constant.VMDS_Kind:    constant.VMD_Kind,
 	constant.VMPS_Kind:    constant.VMP_Kind,
 	constant.VMDSNS_Kinds: constant.VMDSN_Kind,
+	constant.VMDIS_KINDS:  constant.VMDI_KIND,
 }
 
 func (ks *KsGvr) Create(ctx context.Context, namespace, name, key string, value interface{}) error {

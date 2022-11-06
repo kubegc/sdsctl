@@ -52,16 +52,16 @@ func createDiskFromImage(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	} else if !active2 {
-		return fmt.Errorf("pool %+v is inactive", pool)
+		return fmt.Errorf("pool %+v is inactive", targetPool)
 	}
 
-	if !virsh.CheckPoolType(targetPool, ctx.String("vmdi")) {
+	if !virsh.CheckPoolType(targetPool, "vmdi") {
 		return fmt.Errorf("pool type error")
 	}
 	if !virsh.IsDiskExist(pool, ctx.String("vol")) {
-		return fmt.Errorf("no storage vol %s exist", ctx.String("vol"))
+		return fmt.Errorf("storage vol %s not exist", ctx.String("vol"))
 	}
 	sourceDiskdir, _ := virsh.ParseDiskDir(pool, ctx.String("vol"))
 	config, _ := virsh.ParseConfig(sourceDiskdir)
-	return createImage(ctx, config["current"], ctx.String("name"), pool)
+	return createImage(ctx, config["current"], ctx.String("name"), targetPool)
 }

@@ -39,6 +39,10 @@ func NewCreateDiskImageCommand() *cli.Command {
 	}
 }
 
+func createImageBack(path string) {
+	os.RemoveAll(path)
+}
+
 func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	if !utils.Exists(sourceDiskPath) {
 		return fmt.Errorf("disk file not exist")
@@ -55,6 +59,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	}
 	// rebase to self
 	if err := virsh.RebaseDiskSnapshot("", targetImagePath, "qcow2"); err != nil {
+		createImageBack(targetImageDir)
 		return err
 	}
 	// write config
@@ -65,6 +70,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 		"pool":    pool,
 	}
 	if err := virsh.CreateConfig(targetImageDir, cfg); err != nil {
+		createImageBack(targetImageDir)
 		return err
 	}
 
@@ -75,7 +81,8 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	res["pool"] = pool
 	res["format"] = "qcow2"
 	res["type"] = ctx.String("type")
-	if err := ksgvr.Create(ctx.Context, constant.DefaultNamespace, ctx.String("newvol"), constant.CRD_Volume_Key, res); err != nil {
+	if err := ksgvr.Create(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
+		createImageBack(targetImageDir)
 		return err
 	}
 	return nil
@@ -90,7 +97,7 @@ func createDiskImage(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	if !virsh.CheckPoolType(pool, ctx.String("vmdi")) {
+	if !virsh.CheckPoolType(pool, "vmdi") {
 		return fmt.Errorf("pool type error")
 	}
 	return createImage(ctx, ctx.String("source"), ctx.String("name"), pool)

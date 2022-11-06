@@ -67,7 +67,7 @@ func createDisk(ctx *cli.Context) error {
 	}
 	// craete config.json
 	diskPath, _ := virsh.ParseDiskDir(pool, ctx.String("vol"))
-	volPath, _ := virsh.ParseDiskPath(pool, ctx.String("vol"), ctx.String("format"))
+	volPath, _ := virsh.ParseDiskPath(pool, ctx.String("vol"))
 	cfg := map[string]string{
 		"name":    ctx.String("vol"),
 		"dir":     diskPath,

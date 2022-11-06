@@ -42,7 +42,7 @@ func deleteDiskImage(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	if !virsh.CheckPoolType(pool, ctx.String("vmdi")) {
+	if !virsh.CheckPoolType(pool, "vmdi") {
 		return fmt.Errorf("pool %s type error", pool)
 	}
 	if !virsh.IsDiskExist(pool, ctx.String("name")) {
