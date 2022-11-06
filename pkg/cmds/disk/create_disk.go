@@ -89,5 +89,6 @@ func createDisk(ctx *cli.Context) error {
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, flags); err != nil {
 		return err
 	}
+
 	return err
 }

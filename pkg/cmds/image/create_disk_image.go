@@ -29,7 +29,7 @@ func NewCreateDiskImageCommand() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "name",
-				Usage: "storage volume disk name",
+				Usage: "storage volume disk image name",
 			},
 			&cli.StringFlag{
 				Name:  "source",

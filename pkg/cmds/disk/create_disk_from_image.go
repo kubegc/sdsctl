@@ -56,7 +56,7 @@ func createDiskFromImage(ctx *cli.Context) error {
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
 	}
-	exist := virsh.IsDiskExist(pool, ctx.String("source"), ctx.String("type"))
+	exist := virsh.IsDiskExist(pool, ctx.String("source"))
 	if exist {
 		return errors.New(fmt.Sprintf("the volume %+v is already exist", ctx.String("source")))
 	}
@@ -65,7 +65,7 @@ func createDiskFromImage(ctx *cli.Context) error {
 	image, _ := virsh.OpenImage(ctx.String("source"))
 	sourceFormat := image.Format
 	// target
-	targetDiskDir, _ := virsh.ParseDiskDir(pool, ctx.String("target"), ctx.String("type"))
+	targetDiskDir, _ := virsh.ParseDiskDir(pool, ctx.String("target"))
 	targetDiskPath := filepath.Join(targetDiskDir, ctx.String("target"))
 	targetDiskConfig := filepath.Join(targetDiskDir, "config.json")
 	if utils.Exists(targetDiskConfig) {
@@ -77,7 +77,7 @@ func createDiskFromImage(ctx *cli.Context) error {
 			return err
 		}
 	} else {
-		if err := virsh.CreateQcow2DiskWithBacking(ctx.String("source"), sourceFormat, targetDiskPath); err != nil {
+		if err := virsh.CreateDiskWithBacking("qcow2", ctx.String("source"), sourceFormat, targetDiskPath); err != nil {
 			return err
 		}
 	}

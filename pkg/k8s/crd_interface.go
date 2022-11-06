@@ -88,7 +88,7 @@ func (ks *KsGvr) Get(ctx context.Context, namespace string, name string) (*KsCrd
 		return nil, err
 	}
 	data, err := utd.MarshalJSON()
-	fmt.Printf("json:%+v", string(data))
+	//fmt.Printf("json:%+v", string(data))
 	if err != nil {
 		return nil, err
 	}
