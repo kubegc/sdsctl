@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 	"os"
@@ -34,7 +35,7 @@ func NewDeleteDiskImageCommand() *cli.Command {
 }
 
 func deleteDiskImage(ctx *cli.Context) error {
-	//logger := utils.GetLogger()
+	logger := utils.GetLogger()
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
@@ -51,6 +52,7 @@ func deleteDiskImage(ctx *cli.Context) error {
 
 	targetImageDir, _ := virsh.ParseDiskDir(pool, ctx.String("name"))
 	if err = os.RemoveAll(targetImageDir); err != nil {
+		logger.Errorf("os.RemoveAll err:%+v", err)
 		return err
 	}
 

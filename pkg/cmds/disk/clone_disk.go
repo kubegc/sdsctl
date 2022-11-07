@@ -46,11 +46,13 @@ func NewCloneDiskCommand() *cli.Command {
 }
 
 func cloneDisk(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	pool := ctx.String("pool")
 	// new pool info & check
 	poolGvr := k8s.NewKsGvr(constant.VMPS_Kind)
-	vmp, err := poolGvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("pool"))
+	vmp, err := poolGvr.Get(ctx.Context, constant.DefaultNamespace, pool)
 	if err != nil {
+		logger.Errorf("fail to get vmp %s err:%+v", pool, err)
 		return err
 	}
 	poolInfo, _ := k8s.GetCRDSpec(vmp.Spec.Raw, constant.CRD_Pool_Key)
@@ -60,13 +62,15 @@ func cloneDisk(ctx *cli.Context) error {
 
 	// old disk info & check
 	diskGvr := k8s.NewKsGvr(constant.VMDS_Kind)
-	vmd, err := diskGvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("vol"))
+	sourceVmd, err := diskGvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("vol"))
 	if err != nil {
+		logger.Errorf("fail to get vmd %s err:%+v", ctx.String("vol"), err)
 		return err
 	}
-	sourceVolInfo, _ := k8s.GetCRDSpec(vmd.Spec.Raw, constant.CRD_Volume_Key)
+	sourceVolInfo, _ := k8s.GetCRDSpec(sourceVmd.Spec.Raw, constant.CRD_Volume_Key)
 	active, err := virsh.IsPoolActive(sourceVolInfo["pool"])
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", sourceVolInfo["pool"])
@@ -94,6 +98,7 @@ func cloneDisk(ctx *cli.Context) error {
 	file, _ := virsh.GetBackFile(middlePath)
 	if file != "" {
 		if err = virsh.RebaseDiskSnapshot("", middlePath, ctx.String("format")); err != nil {
+			logger.Errorf("RebaseDiskSnapshot err:%+v", err)
 			return err
 		}
 	}
@@ -104,43 +109,40 @@ func cloneDisk(ctx *cli.Context) error {
 		"pool":    pool,
 	}
 	if err = virsh.CreateConfig(middleDir, cfg); err != nil {
+		logger.Errorf("CreateConfig err:%+v", err)
 		return err
 	}
 
 	// judge node name
-	sourceNode := k8s.GetNodeName(vmd.Spec.Raw)
+	sourceNode := k8s.GetNodeName(sourceVmd.Spec.Raw)
 	targetNode := k8s.GetNodeName(vmp.Spec.Raw)
 	if sourceNode == targetNode {
 		// in same node
 		if err := os.Rename(middleDir, targetDiskDir); err != nil {
+			logger.Errorf("Rename err:%+v", err)
 			return err
 		}
 	} else {
 		// in different node
 		targetIP, _ := k8s.GetIPByNodeName(targetNode)
 		if err = utils.CopyToRemoteFile(targetIP, middleDir, targetDiskDir); err != nil {
+			logger.Errorf("CopyToRemoteFile err:%+v", err)
 			return err
 		}
 		// todo remote register?
 	}
 
 	// create vmd
-	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
-	sourceVmd, err := ksgvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("vol"))
-	if err != nil {
-		return err
-	}
-	ressourceVmdMap, _ := k8s.GetCRDSpec(sourceVmd.Spec.Raw, constant.CRD_Volume_Key)
 	res := make(map[string]string)
 	res["disk"] = ctx.String("vol")
 	res["vol"] = ctx.String("vol")
 	res["current"] = targetDiskPath
 	res["pool"] = pool
-	res["capacity"] = ressourceVmdMap["capacity"]
+	res["capacity"] = sourceVolInfo["capacity"]
 	res["format"] = ctx.String("format")
 	res["type"] = ctx.String("type")
-
-	if err = ksgvr.Create(ctx.Context, constant.DefaultNamespace, ctx.String("newvol"), constant.CRD_Volume_Key, res); err != nil {
+	if err = diskGvr.Create(ctx.Context, constant.DefaultNamespace, ctx.String("newvol"), constant.CRD_Volume_Key, res); err != nil {
+		logger.Errorf("diskGvr.Create err:%+v", err)
 		return err
 	}
 	return nil

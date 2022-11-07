@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -35,9 +36,11 @@ func NewDeleteDiskCommand() *cli.Command {
 }
 
 func deleteDisk(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -48,12 +51,14 @@ func deleteDisk(ctx *cli.Context) error {
 	}
 
 	if err = virsh.DeleteDisk(pool, ctx.String("vol")); err != nil {
+		logger.Errorf("DeleteDisk err:%+v", err)
 		return err
 	}
 
 	// delete vmd
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	if ksgvr.Delete(ctx.Context, constant.DefaultNamespace, ctx.String("vol")); err != nil {
+		logger.Errorf("ksgvr.Delete err:%+v", err)
 		return err
 	}
 	return nil

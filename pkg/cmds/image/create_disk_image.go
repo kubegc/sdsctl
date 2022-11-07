@@ -44,6 +44,7 @@ func createImageBack(path string) {
 }
 
 func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
+	logger := utils.GetLogger()
 	if !utils.Exists(sourceDiskPath) {
 		return fmt.Errorf("disk file not exist")
 	}
@@ -60,6 +61,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	// rebase to self
 	if err := virsh.RebaseDiskSnapshot("", targetImagePath, "qcow2"); err != nil {
 		createImageBack(targetImageDir)
+		logger.Errorf("RebaseDiskSnapshot err:%+v", err)
 		return err
 	}
 
@@ -72,6 +74,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	}
 	if err := virsh.CreateConfig(targetImageDir, cfg); err != nil {
 		createImageBack(targetImageDir)
+		logger.Errorf("CreateConfig err:%+v", err)
 		return err
 	}
 
@@ -84,6 +87,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	res["type"] = ctx.String("type")
 	if err := ksgvr.Create(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
 		createImageBack(targetImageDir)
+		logger.Errorf("ksgvr.Create err:%+v", err)
 		return err
 	}
 	return nil

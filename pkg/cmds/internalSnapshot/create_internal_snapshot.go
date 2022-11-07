@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -61,7 +62,7 @@ func updateVMDSnapshot(ctx *cli.Context, domainName string) error {
 }
 
 func createInternalSnapshot(ctx *cli.Context) error {
-	//logger := utils.GetLogger()
+	logger := utils.GetLogger()
 	domainName := ctx.String("domain")
 	if domainName == "" {
 		return fmt.Errorf("domain can't be empty")
@@ -70,9 +71,11 @@ func createInternalSnapshot(ctx *cli.Context) error {
 		return fmt.Errorf("no domain named %s", domainName)
 	}
 	if err := checkDomainDisk(ctx, domainName); err != nil {
+		logger.Errorf("checkDomainDisk err:%+v", err)
 		return err
 	}
 	if err := virsh.CreateInternalSnapshot(domainName, ctx.String("snapshot")); err != nil {
+		logger.Errorf("CreateInternalSnapshot err:%+v", err)
 		return err
 	}
 

@@ -146,7 +146,7 @@ func (i *Image) ResizeImage(capacity string) error {
 
 func (i *Image) CloneImage(capacity string) error {
 	cmd := exec.Command("qemu-img", "rebase", "-c", i.Path, capacity)
-	i.Size, _ = parseCapacity(capacity)
+	i.Size, _ = ParseCapacity(capacity)
 
 	out, err := cmd.CombinedOutput()
 	if err != nil {

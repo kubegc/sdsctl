@@ -3,7 +3,6 @@ package disk
 import (
 	"errors"
 	"fmt"
-	"github.com/dustin/go-humanize"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
@@ -43,12 +42,10 @@ func NewResizeDiskCommand() *cli.Command {
 func resizeDisk(ctx *cli.Context) error {
 	logger := utils.GetLogger()
 	pool := ctx.String("pool")
-	bytes, err := humanize.ParseBytes(ctx.String("capacity"))
-	if err != nil {
-		return fmt.Errorf("parse capacity err:%+v", err)
-	}
+	bytes, _ := virsh.ParseCapacity(ctx.String("capacity"))
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -59,7 +56,7 @@ func resizeDisk(ctx *cli.Context) error {
 	}
 
 	if err := virsh.ResizeDisk(pool, ctx.String("vol"), ctx.String("capacity")); err != nil {
-		logger.Infof("resize disk err:%+v", err)
+		logger.Errorf("resize disk err:%+v", err)
 		return err
 	}
 
@@ -68,6 +65,7 @@ func resizeDisk(ctx *cli.Context) error {
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	updateKey := fmt.Sprintf("%s.capacity", constant.CRD_Volume_Key)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), updateKey, capacity); err != nil {
+		logger.Errorf("ksgvr.Update err:%+v", err)
 		return err
 	}
 	return nil

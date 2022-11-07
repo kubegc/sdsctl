@@ -53,7 +53,7 @@ var unitTransMap = map[string]string{
 	"b":  "b",
 }
 
-func parseCapacity(raw string) (uint64, string) {
+func ParseCapacity(raw string) (uint64, string) {
 	var unit string
 	var i int
 	for i = len(raw) - 1; i >= 0; i-- {
@@ -117,7 +117,7 @@ func CreateVol(poolName, volName, vtype, capacity, format string) (*libvirt.Stor
 	volFile := fmt.Sprintf("%s.%s", volName, format)
 	volPath := filepath.Join(diskPath, volFile)
 	fmt.Println(volPath)
-	num, unit := parseCapacity(capacity)
+	num, unit := ParseCapacity(capacity)
 	var volDesc = &libvirtxml.StorageVolume{
 		Type: vtype,
 		Name: volName,
@@ -154,7 +154,7 @@ func ResizeVol(poolName, volName, capacity string) error {
 	if err != nil {
 		return err
 	}
-	bytes, _ := parseCapacity(capacity)
+	bytes, _ := ParseCapacity(capacity)
 	return vol.Resize(bytes, libvirt.STORAGE_VOL_RESIZE_SHRINK)
 }
 

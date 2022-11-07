@@ -50,10 +50,12 @@ func createDiskFromImage(ctx *cli.Context) error {
 	pool := ctx.String("pool")
 	parseBool, err := strconv.ParseBool(ctx.String("full-copy"))
 	if err != nil {
+		logger.Errorf("ParseBool full-copy err:%+v", err)
 		return err
 	}
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -96,6 +98,7 @@ func createDiskFromImage(ctx *cli.Context) error {
 		"pool":    pool,
 	}
 	if err = virsh.CreateConfig(targetDiskDir, cfg); err != nil {
+		logger.Errorf("virsh.CreateConfig err:%+v", err)
 		return err
 	}
 

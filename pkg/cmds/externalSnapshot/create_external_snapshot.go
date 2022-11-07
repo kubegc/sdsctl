@@ -58,6 +58,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -70,6 +71,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	diskDir, _ := virsh.ParseDiskDir(pool, ctx.String("source"))
 	config, err := virsh.ParseConfig(diskDir)
 	if err != nil {
+		logger.Errorf("ParseConfig err:%+v", err)
 		return err
 	}
 	if !utils.Exists(config["current"]) {
@@ -85,6 +87,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	if domain == "" { // without domain
 		// create snapshot
 		if err := virsh.CreateDiskWithBacking(ctx.String("format"), config["current"], ctx.String("format"), targetSSPath); err != nil {
+			logger.Errorf("CreateDiskWithBacking err:%+v", err)
 			return err
 		}
 	} else { // with domain
@@ -103,6 +106,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 			}
 		}
 		if err = virsh.CreateExternalSnapshot(domain, ctx.String("name"), config["current"], targetSSPath, noNeedSnapshotDisk, ctx.String("format")); err != nil {
+			logger.Errorf("CreateExternalSnapshot err:%+v", err)
 			return err
 		}
 	}
@@ -138,6 +142,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	res["snapshot"] = ctx.String("name")
 	res["current"] = targetSSPath
 	res["format"] = ctx.String("format")
+	res["domain"] = ctx.String("domain")
 	// todo ?
 	res["full_backing_filename"] = config["current"]
 	if err = ksgvr2.Update(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {

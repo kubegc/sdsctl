@@ -116,7 +116,7 @@ func CreateDisk(poolName, volName, capacity, format string) error {
 	if err != nil {
 		return err
 	}
-	num, _ := parseCapacity(capacity)
+	num, _ := ParseCapacity(capacity)
 	image := NewImage(volPath, format, num)
 	return image.Create()
 }
@@ -176,7 +176,7 @@ func ResizeDisk(poolName, volName, capacity string) error {
 		return err
 	}
 
-	curr, _ := parseCapacity(capacity)
+	curr, _ := ParseCapacity(capacity)
 	delta := int64(curr - image.Size)
 	deltaStr := fmt.Sprintf("%sb", strconv.FormatInt(delta, 10))
 	if delta == 0 {

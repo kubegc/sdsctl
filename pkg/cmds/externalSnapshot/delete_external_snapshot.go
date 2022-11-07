@@ -51,6 +51,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -62,6 +63,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	diskDir, _ := virsh.ParseDiskDir(pool, ctx.String("source"))
 	config, err := virsh.ParseConfig(diskDir)
 	if err != nil {
+		logger.Errorf("ParseConfig err:%+v", err)
 		return err
 	}
 	targetSSDir := filepath.Join(diskDir, "snapshots")
@@ -72,6 +74,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	files, err := virsh.GetBackChainFiles(snapshotFiles, targetSSPath)
 	logger.Infof("delete files:%+v", files)
 	if err != nil {
+		logger.Errorf("GetBackChainFiles err:%+v", err)
 		return err
 	}
 	// add snapshot
@@ -83,6 +86,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	if _, ok := files[config["current"]]; ok {
 		vmActive, err := virsh.IsVMActive(domain)
 		if err != nil {
+			logger.Errorf("IsVMActive err:%+v", err)
 			return err
 		}
 		// todo check?
@@ -90,11 +94,13 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 			// live chain
 			logger.Infof("domain LiveBlockForVMDisk")
 			if err := virsh.LiveBlockForVMDisk(domain, config["current"], backFile); err != nil {
+				logger.Errorf("LiveBlockForVMDisk err:%+v", err)
 				return err
 			}
 		} else {
 			logger.Infof("no domain, RebaseDiskSnapshot")
 			if err := virsh.RebaseDiskSnapshot(backFile, config["current"], ""); err != nil {
+				logger.Errorf("RebaseDiskSnapshot err:%+v", err)
 				return err
 			}
 		}
@@ -127,10 +133,10 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	}
 
 	// delete vmdsn
-
 	for k, _ := range files {
 		vmdsnName := filepath.Base(k)
 		if err := ksgvr.Delete(ctx.Context, constant.DefaultNamespace, vmdsnName); err != nil {
+			logger.Errorf("ksgvr.Delete err:%+v", err)
 			return err
 		}
 	}

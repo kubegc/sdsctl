@@ -6,7 +6,7 @@ virsh undefine test111
 kubectl apply -f ../vm/01-CreateVMFromISO.json
 rm -rf /var/lib/libvirt/pooltest111/disktest111/snapshots
 cat << EOF > /var/lib/libvirt/pooltest111/disktest111/config.json
-{"current":"/var/lib/libvirt/pooltest111/disktest111/disktest111.qcow2","dir":"/var/lib/libvirt/pooltest111/disktest111","name":"disktest111","pool":"pooltest111"}
+{"current":"/var/lib/libvirt/pooltest111/disktest111/disktest111","dir":"/var/lib/libvirt/pooltest111/disktest111","name":"disktest111","pool":"pooltest111"}
 EOF
 
 go build -o /tmp/sdsctl /root/go_project/sdsctl/cmd/sdsctl/main.go

@@ -2,6 +2,7 @@ package internalSnapshot
 
 import (
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -35,7 +36,7 @@ func NewDeleteInternalSnapshotCommand() *cli.Command {
 }
 
 func deleteInternalSnapshot(ctx *cli.Context) error {
-	//logger := utils.GetLogger()
+	logger := utils.GetLogger()
 	domainName := ctx.String("domain")
 	if domainName == "" {
 		return fmt.Errorf("domain can't be empty")
@@ -44,9 +45,11 @@ func deleteInternalSnapshot(ctx *cli.Context) error {
 		return fmt.Errorf("no domain named %s", domainName)
 	}
 	if err := checkDomainDisk(ctx, domainName); err != nil {
+		logger.Errorf("checkDomainDisk err:%+v", err)
 		return err
 	}
 	if err := virsh.DeleteInternalSnapshot(domainName, ctx.String("snapshot")); err != nil {
+		logger.Errorf("DeleteInternalSnapshot err:%+v", err)
 		return err
 	}
 	return updateVMDSnapshot(ctx, domainName)

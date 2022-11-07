@@ -3,7 +3,6 @@ package disk
 import (
 	"errors"
 	"fmt"
-	"github.com/dustin/go-humanize"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
@@ -45,9 +44,11 @@ func NewCreateDiskCommand() *cli.Command {
 }
 
 func createDisk(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -57,10 +58,7 @@ func createDisk(ctx *cli.Context) error {
 		return errors.New(fmt.Sprintf("the volume %+v is already exist", ctx.String("vol")))
 	}
 
-	bytes, err := humanize.ParseBytes(ctx.String("capacity"))
-	if err != nil {
-		return err
-	}
+	bytes, _ := virsh.ParseCapacity(ctx.String("capacity"))
 
 	if err = virsh.CreateDisk(pool, ctx.String("vol"), ctx.String("capacity"), ctx.String("format")); err != nil {
 		return err
@@ -75,6 +73,7 @@ func createDisk(ctx *cli.Context) error {
 		"pool":    pool,
 	}
 	if err := virsh.CreateConfig(diskPath, cfg); err != nil {
+		logger.Errorf("CreateConfig err:%+v", err)
 		return err
 	}
 	// update vmd
@@ -87,6 +86,7 @@ func createDisk(ctx *cli.Context) error {
 	}
 	flags = utils.MergeFlags(flags, extra)
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, flags); err != nil {
+		logger.Errorf("ksgvr.Update err:%+v", err)
 		return err
 	}
 

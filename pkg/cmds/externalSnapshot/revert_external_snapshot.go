@@ -59,6 +59,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	pool := ctx.String("pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
+		logger.Errorf("IsPoolActive err:%+v", err)
 		return err
 	} else if !active {
 		return fmt.Errorf("pool %+v is inactive", pool)
@@ -71,6 +72,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	diskDir, _ := virsh.ParseDiskDir(pool, ctx.String("source"))
 	config, err := virsh.ParseConfig(diskDir)
 	if err != nil {
+		logger.Errorf("ParseConfig err:%+v", err)
 		return err
 	}
 	if virsh.CheckDiskInUse(config["current"]) {
@@ -80,6 +82,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	if domain != "" {
 		vmActive, err := virsh.IsVMActive(domain)
 		if err != nil {
+			logger.Errorf("IsVMActive err:%+v", err)
 			return err
 		}
 		if vmActive {
@@ -88,6 +91,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	}
 	backFile, err := virsh.GetBackFile(config["current"])
 	if err != nil {
+		logger.Errorf("GetBackFile err:%+v", err)
 		return err
 	}
 
@@ -111,6 +115,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	vmd, err := ksgvr.Get(ctx.Context, constant.DefaultNamespace, ctx.String("source"))
 	if err != nil {
 		revertBackup(newFilePath)
+		logger.Errorf("ksgvr.Get err:%+v", err)
 		return err
 	}
 	res, _ := k8s.GetCRDSpec(vmd.Spec.Raw, constant.CRD_Volume_Key)
@@ -128,6 +133,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	vmdsn, err := ksgvr2.Get(ctx.Context, constant.DefaultNamespace, ctx.String("name"))
 	if err != nil {
 		revertBackup(newFilePath)
+		logger.Errorf("ksgvr2.Get err:%+v", err)
 		return err
 	}
 	res2, _ := k8s.GetCRDSpec(vmdsn.Spec.Raw, constant.CRD_Volume_Key)
@@ -136,6 +142,7 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 	res2["format"] = ctx.String("format")
 	if err = ksgvr2.Create(ctx.Context, constant.DefaultNamespace, newFile, constant.CRD_Volume_Key, res2); err != nil {
 		revertBackup(newFilePath)
+		logger.Errorf("ksgvr2.Create err:%+v", err)
 		return err
 	}
 

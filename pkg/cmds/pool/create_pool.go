@@ -54,17 +54,21 @@ func NewCreatePoolCommand() *cli.Command {
 }
 
 func createPool(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
 	if err != nil {
+		logger.Errorf("strconv.ParseBool auto-start err:%+v", err)
 		return err
 	}
 	sourceHost, sourcePath := ctx.String("source-host"), ctx.String("source-path")
 	pool, err := virsh.CreatePool(ctx.String("pool"), ctx.String("type"), ctx.String("url"), sourceHost, sourcePath)
 	if err != nil {
+		logger.Errorf("CreatePool err:%+v", err)
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
+		logger.Errorf("AutoStartPool err:%+v", err)
 		return err
 	}
 	// write content file
@@ -79,6 +83,7 @@ func createPool(ctx *cli.Context) error {
 	delete(flags, "source-path")
 	info, err := pool.GetInfo()
 	if err != nil {
+		logger.Errorf("GetInfo err:%+v", err)
 		return err
 	}
 	extra := map[string]interface{}{
