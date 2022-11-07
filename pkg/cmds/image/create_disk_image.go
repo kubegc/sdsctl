@@ -62,6 +62,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 		createImageBack(targetImageDir)
 		return err
 	}
+
 	// write config
 	cfg := map[string]string{
 		"name":    name,

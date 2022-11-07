@@ -29,18 +29,19 @@ func main() {
 		disk.NewDeleteDiskCommand(),
 		disk.NewCloneDiskCommand(),
 		disk.NewResizeDiskCommand(),
+		disk.NewCreateDiskFromImageCommand(),
 
-		// disk external snapshot
+		// disk external snapshot commands
 		externalSnapshot.NewCreateExternalSnapshotCommand(),
 		externalSnapshot.NewRevertExternalSnapshotCommand(),
 		externalSnapshot.NewDeleteExternalSnapshotCommand(),
 
-		// disk image
+		// disk image commands
 		image.NewCreateDiskFromImageCommand(),
 		image.NewCreateDiskImageCommand(),
 		image.NewDeleteDiskImageCommand(),
 
-		// disk internal snapshot
+		// disk internal snapshot commands
 		internalSnapshot.NewCreateInternalSnapshotCommand(),
 		internalSnapshot.NewRevertInternalSnapshotCommand(),
 		internalSnapshot.NewDeleteInternalSnapshotCommand(),

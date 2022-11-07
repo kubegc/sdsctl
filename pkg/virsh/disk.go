@@ -192,39 +192,28 @@ func CloneDisk(poolName, volName, newVolName string) error {
 	return nil
 }
 
-func CreateFullCopyDisk(source, sourceFormat, targetDiskDir string) error {
+func CreateFullCopyDisk(source, sourceFormat, targetDiskPath string) error {
 	if sourceFormat != ImageFormatQCOW2 {
 		// 将image转为qcow2格式，只有qcow2才支持rebase
 		// convert a vmdk image file to a qcow2 image file:
 		// qemu-img convert -f vmdk image.vmdk -O qcow2 image.qcow2
 		cmd := &utils.Command{
-			Cmd: "qemu convert ",
+			Cmd: "qemu-img convert ",
 			Params: map[string]string{
 				"-f": fmt.Sprintf("%s %s", sourceFormat, source),
-				"-O": fmt.Sprintf("qcow2 %s", targetDiskDir),
+				"-O": fmt.Sprintf("qcow2 %s", targetDiskPath),
 			},
 		}
 		if _, err := cmd.Execute(); err != nil {
 			return err
 		}
 	} else {
-		cmd := &utils.Command{
-			Cmd: fmt.Sprintf("cp -rf %s %s", source, targetDiskDir),
-		}
-		if _, err := cmd.Execute(); err != nil {
+		if err := utils.CopyFile(source, targetDiskPath); err != nil {
 			return err
 		}
 	}
 	// rebase target with no backing file
-	cmd2 := &utils.Command{
-		Cmd: "qemu-img rebase ",
-		Params: map[string]string{
-			"-f": fmt.Sprintf("qcow2 %s", targetDiskDir),
-			"-b": "''",
-			"-u": "",
-		},
-	}
-	if _, err := cmd2.Execute(); err != nil {
+	if err := RebaseDiskSnapshot("", targetDiskPath, "qcow2"); err != nil {
 		return err
 	}
 	return nil

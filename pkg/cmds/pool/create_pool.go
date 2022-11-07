@@ -1,7 +1,6 @@
 package pool
 
 import (
-	"github.com/dustin/go-humanize"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
@@ -85,7 +84,7 @@ func createPool(ctx *cli.Context) error {
 	extra := map[string]interface{}{
 		"state":      constant.CRD_Pool_Active,
 		"autostart":  autoStart,
-		"capacity":   humanize.Bytes(info.Capacity),
+		"capacity":   virsh.UniformBytes(info.Capacity),
 		"sourceHost": sourceHost,
 		"sourcePath": sourcePath,
 	}

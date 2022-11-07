@@ -2,7 +2,6 @@ package pool
 
 import (
 	"fmt"
-	"github.com/dustin/go-humanize"
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
@@ -54,9 +53,9 @@ func showPool(ctx *cli.Context) error {
 	extra := map[string]interface{}{
 		"state":      virsh.GetPoolState(info.State),
 		"uuid":       uuid,
-		"free":       humanize.Bytes(info.Available),
-		"capacity":   humanize.Bytes(info.Capacity),
-		"allocation": humanize.Bytes(info.Allocation),
+		"free":       virsh.UniformBytes(info.Available),
+		"capacity":   virsh.UniformBytes(info.Capacity),
+		"allocation": virsh.UniformBytes(info.Allocation),
 		"msg":        vmp.Spec.String(),
 	}
 	flags = utils.MergeFlags(flags, extra)

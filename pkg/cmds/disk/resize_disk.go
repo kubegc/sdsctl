@@ -64,7 +64,7 @@ func resizeDisk(ctx *cli.Context) error {
 	}
 
 	// update vmd
-	capacity := humanize.Bytes(bytes)
+	capacity := virsh.UniformBytes(bytes)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	updateKey := fmt.Sprintf("%s.capacity", constant.CRD_Volume_Key)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), updateKey, capacity); err != nil {

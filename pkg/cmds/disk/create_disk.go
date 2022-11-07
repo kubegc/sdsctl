@@ -83,7 +83,7 @@ func createDisk(ctx *cli.Context) error {
 	delete(flags, "capacity")
 	extra := map[string]interface{}{
 		"current":  volPath,
-		"capacity": humanize.Bytes(bytes),
+		"capacity": virsh.UniformBytes(bytes),
 	}
 	flags = utils.MergeFlags(flags, extra)
 	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, flags); err != nil {

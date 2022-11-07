@@ -8,6 +8,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"os"
 	"path/filepath"
 	"strconv"
 )
@@ -15,7 +16,7 @@ import (
 func NewCreateDiskFromImageCommand() *cli.Command {
 	return &cli.Command{
 		Name:      "create-disk-from-image",
-		Usage:     "create kvm disk from image for kubestack",
+		Usage:     "create disk from image for kubestack",
 		UsageText: "sdsctl [global options] create-disk-from-image [options]",
 		Action:    createDiskFromImage,
 		Flags: []cli.Flag{
@@ -29,8 +30,8 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 				Usage: "storage pool name",
 			},
 			&cli.StringFlag{
-				Name:  "target",
-				Usage: "new storage vol name",
+				Name:  "name",
+				Usage: "new storage disk name",
 			},
 			&cli.StringFlag{
 				Name:  "source",
@@ -45,6 +46,7 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 }
 
 func createDiskFromImage(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	pool := ctx.String("pool")
 	parseBool, err := strconv.ParseBool(ctx.String("full-copy"))
 	if err != nil {
@@ -64,25 +66,31 @@ func createDiskFromImage(ctx *cli.Context) error {
 	// source
 	image, _ := virsh.OpenImage(ctx.String("source"))
 	sourceFormat := image.Format
+
 	// target
-	targetDiskDir, _ := virsh.ParseDiskDir(pool, ctx.String("target"))
-	targetDiskPath := filepath.Join(targetDiskDir, ctx.String("target"))
+	targetDiskDir, _ := virsh.ParseDiskDir(pool, ctx.String("name"))
+	targetDiskPath := filepath.Join(targetDiskDir, ctx.String("name"))
 	targetDiskConfig := filepath.Join(targetDiskDir, "config.json")
+	if !utils.Exists(targetDiskDir) {
+		os.MkdirAll(targetDiskDir, os.ModePerm)
+	}
 	if utils.Exists(targetDiskConfig) {
-		return errors.New(fmt.Sprintf("target disk %s already exists", targetDiskConfig))
+		return errors.New(fmt.Sprintf("target disk %s config already exists", targetDiskConfig))
 	}
 
 	if parseBool {
 		if err := virsh.CreateFullCopyDisk(ctx.String("source"), sourceFormat, targetDiskPath); err != nil {
+			logger.Errorf("CreateFullCopyDisk err:%+v", err)
 			return err
 		}
 	} else {
 		if err := virsh.CreateDiskWithBacking("qcow2", ctx.String("source"), sourceFormat, targetDiskPath); err != nil {
+			logger.Errorf("CreateDiskWithBacking err:%+v", err)
 			return err
 		}
 	}
 	cfg := map[string]string{
-		"name":    ctx.String("target"),
+		"name":    ctx.String("name"),
 		"dir":     targetDiskDir,
 		"current": targetDiskPath,
 		"pool":    pool,
@@ -94,12 +102,14 @@ func createDiskFromImage(ctx *cli.Context) error {
 	// update vmd
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	flags := utils.ParseFlagMap(ctx)
-	delete(flags, "target")
+	delete(flags, "name")
 	extra := map[string]interface{}{
-		"current": targetDiskPath,
+		"current":  targetDiskPath,
+		"format":   "qcow2",
+		"capacity": virsh.UniformBytes(image.Size),
 	}
 	flags = utils.MergeFlags(flags, extra)
-	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("target"), constant.CRD_Volume_Key, flags); err != nil {
+	if err = ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, flags); err != nil {
 		return err
 	}
 	return err
