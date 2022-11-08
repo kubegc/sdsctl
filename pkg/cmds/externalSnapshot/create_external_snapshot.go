@@ -97,6 +97,7 @@ func createExternalSnapshot(ctx *cli.Context) error {
 		//}
 		res, err := virsh.CheckVMDiskSpec(domain, config["current"])
 		if err != nil {
+			logger.Errorf("CheckVMDiskSpec err:%+v", err)
 			return err
 		}
 		noNeedSnapshotDisk := ""

@@ -13,8 +13,7 @@
       "deleteDiskExternalSnapshot": {
         "type": "localfs",
         "pool": "pooltest111",
-        "source": "disktest111",
-        "name": "disktest111-snapshot",
+        "source": "d95e3f560e11403c",
         "domain": "test111"
       }
     }

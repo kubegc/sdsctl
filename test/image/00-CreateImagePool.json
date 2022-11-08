@@ -1,0 +1,21 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachinePool",
+  "metadata": {
+    "name": "pooltest111-image",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "createPool": {
+        "type": "dir",
+        "url": "/var/lib/libvirt/pooltest111-image",
+        "content": "vmdi",
+        "auto-start": "true"
+      }
+    }
+  }
+}

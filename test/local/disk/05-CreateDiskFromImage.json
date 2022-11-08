@@ -1,8 +1,8 @@
 {
   "apiVersion": "doslab.io/v1",
-  "kind": "VirtualMachineDiskSnapshot",
+  "kind": "VirtualMachineDisk",
   "metadata": {
-    "name": "disktest111-snapshot2",
+    "name": "disktest555",
     "labels": {
       "host": "vm.wanna"
     }
@@ -10,12 +10,11 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "revertDiskExternalSnapshot": {
+      "createDiskFromDiskImage": {
         "type": "localfs",
         "pool": "pooltest111",
-        "source": "disktest111",
-        "format": "qcow2",
-        "domain": "test111"
+        "source": "/var/lib/libvirt/pooltest111-image/disktest111-image/disktest111-image",
+        "full-copy": "true"
       }
     }
   }

@@ -1,0 +1,20 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDiskImage",
+  "metadata": {
+    "name": "disktest111-image",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "createDiskImage": {
+        "type": "localfs",
+        "pool": "pooltest111-image",
+        "source": "/var/lib/libvirt/pooltest111/disktest111/disktest111.qcow2"
+      }
+    }
+  }
+}
