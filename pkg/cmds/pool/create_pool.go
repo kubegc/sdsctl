@@ -1,7 +1,10 @@
 package pool
 
 import (
+	"fmt"
 	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/grpc/grpc_client"
+	"github.com/kube-stack/sdsctl/pkg/grpc/pb_gen"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
@@ -53,15 +56,53 @@ func NewCreatePoolCommand() *cli.Command {
 	}
 }
 
+var poolTypeTrans = map[string]string{
+	constant.PoolCephType: constant.PoolDirType,
+	constant.PoolNFSType:  constant.PoolNetfsType,
+	constant.PoolDirType:  constant.PoolDirType,
+}
+
 func createPool(ctx *cli.Context) error {
 	logger := utils.GetLogger()
+	ptype := ctx.String("type")
+	if _, ok := poolTypeTrans[ptype]; !ok {
+		return fmt.Errorf("invalid pool type: %+v", ptype)
+	}
 	autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
 	if err != nil {
 		logger.Errorf("strconv.ParseBool auto-start err:%+v", err)
 		return err
 	}
+	if !utils.Exists(ctx.String("url")) {
+		utils.CreateDir(ctx.String("url"))
+	}
 	sourceHost, sourcePath := ctx.String("source-host"), ctx.String("source-path")
-	pool, err := virsh.CreatePool(ctx.String("pool"), ctx.String("type"), ctx.String("url"), sourceHost, sourcePath)
+	if ptype == constant.PoolCephType {
+		secret, err := utils.GetSecret()
+		if err != nil {
+			logger.Errorf("fail to get ceph secret: %+v", err)
+			return err
+		}
+		scmd := fmt.Sprintf("mount -t ceph -o mds_namespace=%s,name=%s,secret=%s %s:%s %s", constant.DefaultMdsNamespace, constant.DefaultName, secret, sourceHost, sourcePath, ctx.String("url"))
+		comm := utils.Command{Cmd: scmd}
+		if _, err := comm.Execute(); err != nil {
+			return err
+		}
+		client, err := grpc_client.NewGrpcClientUnixSocket(constant.SocketPath)
+		if err != nil {
+			logger.Errorf("fail to connect grpc server err: %+v", err)
+			return err
+		}
+
+		req := &pb_gen.RPCRequest{
+			Cmd: scmd,
+		}
+		resp, err := client.C.Call(ctx.Context, req)
+		if err != nil || resp.Code != constant.STATUS_OK {
+			return fmt.Errorf("grpc call err: %+v", resp.Message)
+		}
+	}
+	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourcePath)
 	if err != nil {
 		logger.Errorf("CreatePool err:%+v", err)
 		virsh.DeletePool(ctx.String("pool"))

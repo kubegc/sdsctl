@@ -22,6 +22,20 @@ const (
 	DefualtLogPath = "/var/log/sdsctl.log"
 )
 
+// pool type
+const (
+	PoolCephType  = "ceph"
+	PoolNFSType   = "nfs"
+	PoolNetfsType = "netfs"
+	PoolDirType   = "dir"
+)
+
+// rook
+const (
+	DefaultMdsNamespace = "myfs"
+	DefaultName         = "admin"
+)
+
 // k8s GVK
 const (
 	// crd group & version

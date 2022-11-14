@@ -95,7 +95,6 @@ func DeletePool(name string) error {
 		return err
 	}
 	pool, err := conn.LookupStoragePoolByName(name)
-	pool.GetXMLDesc(0)
 	if err != nil {
 		return err
 	}

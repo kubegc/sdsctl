@@ -16,6 +16,6 @@ func TestGetFilesUnderDir(t *testing.T) {
 }
 
 func TestCopyRemoteFile(t *testing.T) {
-	err := CopyRemoteFile("192.168.100.102", "/var/lib/libvirt/pooltest2/disktest2", "/root/cptest")
+	err := CopyFromRemoteFile("192.168.100.102", "/var/lib/libvirt/pooltest2/disktest2", "/root/cptest")
 	fmt.Printf("err:%+v\n", err)
 }
