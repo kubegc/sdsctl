@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDisk",
   "metadata": {
-    "name": "nfsdisk111",
+    "name": "cephfsdisk",
     "labels": {
       "host": "vm.wanna"
     }
@@ -10,8 +10,12 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "deleteDisk": {
-        "pool": "nfspool"
+      "cloneDisk": {
+        "type": "cephfs",
+        "pool": "cephfspool",
+        "vol": "cephfsdisk",
+        "newvol": "cephfsdisk-clone",
+        "format": "qcow2"
       }
     }
   }

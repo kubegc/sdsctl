@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDisk",
   "metadata": {
-    "name": "nfsdisk111",
+    "name": "cephfsdisk",
     "labels": {
       "host": "vm.wanna"
     }
@@ -10,11 +10,11 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "createDisk": {
-        "type": "netfs",
-        "pool": "nfspool",
-        "capacity": "2G",
-        "format": "qcow2"
+      "resizeDisk": {
+        "pool": "cephfspool",
+        "type": "cephfs",
+        "capacity": "3G",
+        "vol": "cephfsdisk"
       }
     }
   }

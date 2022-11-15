@@ -1,0 +1,20 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDisk",
+  "metadata": {
+    "name": "cephfsdisk-clone",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "deleteDisk": {
+        "type": "cephfs",
+        "pool": "cephfspool",
+        "vol": "cephfsdisk-clone"
+      }
+    }
+  }
+}
