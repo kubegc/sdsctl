@@ -27,7 +27,7 @@ func NewCreatePoolCommand() *cli.Command {
 			},
 			&cli.StringFlag{
 				Name:  "type",
-				Usage: "storage pool type ",
+				Usage: "storage pool type",
 				Value: "dir",
 			},
 			&cli.StringFlag{
