@@ -43,6 +43,9 @@ const (
 	DefaultVersion   = "v1"
 	DefaultNamespace = "default"
 
+	// rook related
+	RookNamespace = "rook-ceph"
+
 	// crd kind
 	VMD_Kind     = "VirtualMachineDisk"
 	VMDS_Kind    = "virtualmachinedisks"

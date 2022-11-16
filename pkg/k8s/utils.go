@@ -2,7 +2,10 @@ package k8s
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"os"
 	"strings"
@@ -24,4 +27,33 @@ func GetIPByNodeName(nodeName string) (string, error) {
 	}
 	annotations := nodeInfo.GetObjectMeta().GetAnnotations()
 	return annotations["THISIP"], nil
+}
+
+func GetNfsServiceIp() (string, error) {
+	client, err := NewClient()
+	if err != nil {
+		return "", err
+	}
+	svclist, err := client.CoreV1().Services(constant.RookNamespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return "", err
+	}
+	for _, svc := range svclist.Items {
+		if strings.Contains(svc.Name, "nfs") {
+			return svc.Spec.ClusterIP, nil
+		}
+	}
+	return "", errors.New("no nfs service")
+}
+
+func CheckNfsMount(nfsSvcIp, path string) bool {
+	scmd := fmt.Sprintf("df -h | grep %s | grep %s | wc -l", path, nfsSvcIp)
+	cmd := utils.Command{
+		Cmd: scmd,
+	}
+	output, err := cmd.Execute()
+	if err != nil || output != "0" {
+		return true
+	}
+	return false
 }

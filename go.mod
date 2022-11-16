@@ -3,17 +3,16 @@ module github.com/kube-stack/sdsctl
 go 1.19
 
 require (
-	github.com/bramvdbogaerde/go-scp v1.2.0
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/libvirt/libvirt-go-xml v7.4.0+incompatible
+	github.com/moby/sys/mountinfo v0.6.2
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/satori/go.uuid v1.2.0
 	github.com/tidwall/gjson v1.14.3
 	github.com/tidwall/sjson v1.2.5
 	github.com/urfave/cli/v2 v2.20.2
-	golang.org/x/crypto v0.1.0
 	google.golang.org/grpc v1.50.1
 	google.golang.org/protobuf v1.28.1
 	k8s.io/apimachinery v0.25.3
