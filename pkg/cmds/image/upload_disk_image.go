@@ -6,6 +6,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"path/filepath"
 )
 
 func NewUploadDiskImageCommand() *cli.Command {
@@ -16,20 +17,16 @@ func NewUploadDiskImageCommand() *cli.Command {
 		Action:    uploadDiskImage,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "source-path",
-				Usage: "vmdi file path",
-			},
-			&cli.StringFlag{
 				Name:  "pool",
-				Usage: "vmdi storage pool name",
+				Usage: "source vmdi storage pool name",
 			},
 			&cli.StringFlag{
-				Name:  "vol",
-				Usage: "storage volume disk image name",
+				Name:  "name",
+				Usage: "source storage volume disk image name",
 			},
 			&cli.StringFlag{
 				Name:  "target-path",
-				Usage: "nfs share path",
+				Usage: "target nfs share path",
 			},
 		},
 	}
@@ -38,20 +35,17 @@ func NewUploadDiskImageCommand() *cli.Command {
 func uploadDiskImage(ctx *cli.Context) error {
 	logger := utils.GetLogger()
 	pool := ctx.String("pool")
-	uploadPath := ctx.String("source-path")
 	targetPath := ctx.String("target-path")
-	if uploadPath == "" {
-		active, err := virsh.IsPoolActive(pool)
-		if err != nil {
-			return err
-		} else if !active {
-			return fmt.Errorf("pool %+v is inactive", pool)
-		}
-		if !virsh.CheckPoolType(pool, "vmdi") {
-			return fmt.Errorf("pool type error")
-		}
-		uploadPath, err = virsh.ParseDiskPath(pool, ctx.String("vol"))
+	active, err := virsh.IsPoolActive(pool)
+	if err != nil {
+		return err
+	} else if !active {
+		return fmt.Errorf("pool %+v is inactive", pool)
 	}
+	if !virsh.CheckPoolType(pool, "vmdi") {
+		return fmt.Errorf("pool type error")
+	}
+	uploadPath, err := virsh.ParseDiskPath(pool, ctx.String("name"))
 
 	ip, err := k8s.GetNfsServiceIp()
 	if err != nil {
@@ -62,5 +56,6 @@ func uploadDiskImage(ctx *cli.Context) error {
 		return fmt.Errorf("plz mount nfs path first")
 	}
 
-	return utils.CopyFile(uploadPath, targetPath)
+	targetImagePath := filepath.Join(targetPath, ctx.String("name"))
+	return utils.CopyFile(uploadPath, targetImagePath)
 }

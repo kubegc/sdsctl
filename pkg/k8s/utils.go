@@ -47,13 +47,13 @@ func GetNfsServiceIp() (string, error) {
 }
 
 func CheckNfsMount(nfsSvcIp, path string) bool {
-	scmd := fmt.Sprintf("df -h | grep %s | grep %s | wc -l", path, nfsSvcIp)
+	scmd := fmt.Sprintf("df -h | grep '%s' | awk '{print $6}'", nfsSvcIp)
 	cmd := utils.Command{
 		Cmd: scmd,
 	}
 	output, err := cmd.Execute()
-	if err != nil || output != "0" {
-		return true
+	if err != nil || output != "" {
+		return strings.Contains(path, output)
 	}
 	return false
 }

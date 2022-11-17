@@ -38,9 +38,11 @@ func main() {
 		externalSnapshot.NewDeleteExternalSnapshotCommand(),
 
 		// disk image commands
-		image.NewCreateDiskFromImageCommand(),
+		image.NewCreateImageFromDiskCommand(),
 		image.NewCreateDiskImageCommand(),
 		image.NewDeleteDiskImageCommand(),
+		image.NewUploadDiskImageCommand(),
+		image.NewDownloadDiskImageCommand(),
 
 		// disk internal snapshot commands
 		internalSnapshot.NewCreateInternalSnapshotCommand(),

@@ -6,12 +6,12 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func NewCreateDiskFromImageCommand() *cli.Command {
+func NewCreateImageFromDiskCommand() *cli.Command {
 	return &cli.Command{
-		Name:      "create-disk-from-image",
-		Usage:     "create disk from image for kubestack",
-		UsageText: "sdsctl [global options] create-disk-from-image [options]",
-		Action:    createDiskFromImage,
+		Name:      "create-image-from-disk",
+		Usage:     "create image from disk for kubestack",
+		UsageText: "sdsctl [global options] create-image-from-disk [options]",
+		Action:    createImageFromDisk,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -27,7 +27,7 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 				Usage: "source storage disk file path",
 			},
 			&cli.StringFlag{
-				Name:  "targetpool",
+				Name:  "target-pool",
 				Usage: "vmdi storage pool name",
 			},
 			&cli.StringFlag{
@@ -38,10 +38,10 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 	}
 }
 
-func createDiskFromImage(ctx *cli.Context) error {
+func createImageFromDisk(ctx *cli.Context) error {
 	//logger := utils.GetLogger()
 	pool := ctx.String("pool")
-	targetPool := ctx.String("targetpool")
+	targetPool := ctx.String("target-pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
 		return err

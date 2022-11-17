@@ -15,3 +15,8 @@ func TestGetIPByNodeName(t *testing.T) {
 	fmt.Printf("err:%+v\n", err)
 	fmt.Printf("name:%+v\n", ip)
 }
+
+func TestCheckNfsMount(t *testing.T) {
+	mount := CheckNfsMount("10.107.246.5", "/var/lib/libvirt/share/image")
+	fmt.Printf("mount:%+v", mount)
+}
