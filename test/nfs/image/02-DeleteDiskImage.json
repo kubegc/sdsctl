@@ -1,8 +1,8 @@
 {
   "apiVersion": "doslab.io/v1",
-  "kind": "VirtualMachineDisk",
+  "kind": "VirtualMachineDiskImage",
   "metadata": {
-    "name": "disktest111",
+    "name": "disktest111-image",
     "labels": {
       "host": "vm.wanna"
     }
@@ -10,9 +10,9 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "deleteDisk": {
-        "pool": "pooltest111",
-        "vol": "disktest111"
+      "deleteDiskImage": {
+        "type": "localfs",
+        "pool": "pooltest111-image"
       }
     }
   }

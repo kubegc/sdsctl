@@ -1,0 +1,19 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDiskImage",
+  "metadata": {
+    "name": "disktest111-image",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "uploadDiskImage": {
+        "pool": "pooltest111-image",
+        "target-path": "/var/lib/libvirt/share"
+      }
+    }
+  }
+}

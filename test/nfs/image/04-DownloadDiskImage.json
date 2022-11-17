@@ -1,0 +1,19 @@
+{
+  "apiVersion": "doslab.io/v1",
+  "kind": "VirtualMachineDiskImage",
+  "metadata": {
+    "name": "image-download",
+    "labels": {
+      "host": "vm.wanna"
+    }
+  },
+  "spec": {
+    "nodeName": "vm.wanna",
+    "lifecycle": {
+      "downloadDiskImage": {
+        "pool": "pooltest111-image",
+        "source-path": "/var/lib/libvirt/share/disktest111-image"
+      }
+    }
+  }
+}
