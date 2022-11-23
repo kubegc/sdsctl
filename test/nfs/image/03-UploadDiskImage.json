@@ -11,6 +11,7 @@
     "nodeName": "vm.wanna",
     "lifecycle": {
       "uploadDiskImage": {
+        "type": "nfs",
         "pool": "pooltest111-image",
         "target-path": "/var/lib/libvirt/share"
       }

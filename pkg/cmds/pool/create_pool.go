@@ -6,6 +6,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/grpc/grpc_client"
 	"github.com/kube-stack/sdsctl/pkg/grpc/pb_gen"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
+	"github.com/kube-stack/sdsctl/pkg/rook"
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
@@ -78,7 +79,7 @@ func createPool(ctx *cli.Context) error {
 	}
 	sourceHost, sourcePath := ctx.String("source-host"), ctx.String("source-path")
 	if ptype == constant.PoolCephType {
-		secret, err := utils.GetSecret()
+		secret, err := rook.GetSecret()
 		if err != nil {
 			logger.Errorf("fail to get ceph secret: %+v", err)
 			return err

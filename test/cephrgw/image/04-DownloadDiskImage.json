@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDiskImage",
   "metadata": {
-    "name": "image-download",
+    "name": "image-download2",
     "labels": {
       "host": "vm.wanna"
     }
@@ -11,9 +11,9 @@
     "nodeName": "vm.wanna",
     "lifecycle": {
       "downloadDiskImage": {
-        "type": "nfs",
+        "type": "cephrgw",
         "pool": "pooltest111-image",
-        "source-path": "/var/lib/libvirt/share/disktest111-image"
+        "source-path": "/wanna/disktest111-image2"
       }
     }
   }

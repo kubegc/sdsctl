@@ -3,11 +3,11 @@ module github.com/kube-stack/sdsctl
 go 1.19
 
 require (
+	github.com/aws/aws-sdk-go v1.44.139
 	github.com/dustin/go-humanize v1.0.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/libvirt/libvirt-go-xml v7.4.0+incompatible
-	github.com/moby/sys/mountinfo v0.6.2
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/satori/go.uuid v1.2.0
 	github.com/tidwall/gjson v1.14.3
@@ -35,6 +35,7 @@ require (
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/imdario/mergo v0.3.6 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/jonboulle/clockwork v0.3.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect

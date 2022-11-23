@@ -46,6 +46,14 @@ const (
 	// rook related
 	RookNamespace = "rook-ceph"
 
+	// aws rgw s3 default info
+	S3ConfigMapName = "ceph-delete-bucket"
+	S3SecretName    = "ceph-delete-bucket"
+
+	// image hub type
+	NfsImageHub     = "nfs"
+	CephrwgImageHub = "cephrgw"
+
 	// crd kind
 	VMD_Kind     = "VirtualMachineDisk"
 	VMDS_Kind    = "virtualmachinedisks"
