@@ -36,13 +36,7 @@ const (
 	DefaultName         = "admin"
 )
 
-// k8s GVK
 const (
-	// crd group & version
-	DefaultGroup     = "doslab.io"
-	DefaultVersion   = "v1"
-	DefaultNamespace = "default"
-
 	// rook related
 	RookNamespace = "rook-ceph"
 
@@ -53,6 +47,20 @@ const (
 	// image hub type
 	NfsImageHub     = "nfs"
 	CephrwgImageHub = "cephrgw"
+
+	// rbd pool
+	DefaultRookGroup     = "ceph.rook.io"
+	DefaultRookVersion   = "v1"
+	CephBlockPool_Kind   = "CephBlockPool"
+	CephBlockPoolS_Kinds = "cephblockpools"
+)
+
+// k8s CRD
+const (
+	// crd group & version
+	DefaultGroup     = "doslab.io"
+	DefaultVersion   = "v1"
+	DefaultNamespace = "default"
 
 	// crd kind
 	VMD_Kind     = "VirtualMachineDisk"

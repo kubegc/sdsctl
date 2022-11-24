@@ -46,6 +46,16 @@ func NewKsGvr(crdName string) KsGvr {
 	}
 }
 
+func NewExternalGvr(group, version, crdName string) KsGvr {
+	return KsGvr{
+		gvr: schema.GroupVersionResource{
+			Group:    group,
+			Version:  version,
+			Resource: crdName,
+		},
+	}
+}
+
 var Client dynamic.Interface
 
 func GetCRDClient() (dynamic.Interface, error) {
@@ -111,11 +121,12 @@ func (ks *KsGvr) Exist(ctx context.Context, namespace string, name string) (bool
 	return true, nil
 }
 
-var plural2kineMaps = map[string]string{
-	constant.VMDS_Kind:    constant.VMD_Kind,
-	constant.VMPS_Kind:    constant.VMP_Kind,
-	constant.VMDSNS_Kinds: constant.VMDSN_Kind,
-	constant.VMDIS_KINDS:  constant.VMDI_KIND,
+var plural2kindMaps = map[string]string{
+	constant.VMDS_Kind:            constant.VMD_Kind,
+	constant.VMPS_Kind:            constant.VMP_Kind,
+	constant.VMDSNS_Kinds:         constant.VMDSN_Kind,
+	constant.VMDIS_KINDS:          constant.VMDI_KIND,
+	constant.CephBlockPoolS_Kinds: constant.CephBlockPool_Kind,
 }
 
 func (ks *KsGvr) Create(ctx context.Context, namespace, name, key string, value interface{}) error {
@@ -130,12 +141,36 @@ metadata:
 spec:
   nodeName: "%s"
   status: ''
-`, ks.gvr.Group, ks.gvr.Version, plural2kineMaps[ks.gvr.Resource], name, hostName, hostName)
+`, ks.gvr.Group, ks.gvr.Version, plural2kindMaps[ks.gvr.Resource], name, hostName, hostName)
 	jsonBytes, _ := yamltrans.YAMLToJSON([]byte(createData))
 	//fmt.Println(string(jsonBytes))
 	bytes, _ := sjson.SetBytes(jsonBytes, fmt.Sprintf("spec.%s", key), value)
 	bytes, _ = AddPowerStatusForInit(bytes, constant.CRD_Ready_Msg, constant.CRD_Ready_Reason)
 	//fmt.Println(string(bytes))
+	client, err := GetCRDClient()
+	if err != nil {
+		return err
+	}
+	decoder := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
+	obj := &unstructured.Unstructured{}
+	if _, _, err = decoder.Decode(bytes, nil, obj); err != nil {
+		return err
+	}
+	_, err = client.Resource(ks.gvr).Namespace(namespace).Create(ctx, obj, metav1.CreateOptions{})
+	return err
+}
+
+func (ks *KsGvr) CreateExternalCrd(ctx context.Context, namespace, name, key string, value interface{}) error {
+	createData := fmt.Sprintf(`
+apiVersion: "%s/%s"
+kind: "%s"
+metadata:
+  name: "%s"
+  namespace: "%s"
+spec:
+`, ks.gvr.Group, ks.gvr.Version, plural2kindMaps[ks.gvr.Resource], name, namespace)
+	jsonBytes, _ := yamltrans.YAMLToJSON([]byte(createData))
+	bytes, _ := sjson.SetBytes(jsonBytes, key, value)
 	client, err := GetCRDClient()
 	if err != nil {
 		return err

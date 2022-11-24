@@ -66,3 +66,15 @@ func TestKsGvr_Create(t *testing.T) {
 	err := ksgvr.Create(context.TODO(), constant.DefaultNamespace, "disktest222", constant.CRD_Volume_Key, res)
 	fmt.Printf("err: %+v\n", err)
 }
+
+func TestKsGvr_CreateExternalCrd(t *testing.T) {
+	ksgvr := NewExternalGvr(constant.DefaultRookGroup, constant.DefaultRookVersion, constant.CephBlockPoolS_Kinds)
+	res := make(map[string]interface{})
+	res["failureDomain"] = "host"
+	res["replicated"] = map[string]interface{}{
+		"size":                   3,
+		"requireSafeReplicaSize": true,
+	}
+	err := ksgvr.CreateExternalCrd(context.TODO(), constant.RookNamespace, "rbdpooltest", "spec", res)
+	fmt.Printf("err: %+v\n", err)
+}
