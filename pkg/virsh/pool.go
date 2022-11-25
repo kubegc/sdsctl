@@ -2,6 +2,7 @@ package virsh
 
 import (
 	"encoding/xml"
+	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
@@ -29,8 +30,8 @@ func GetPoolState(state libvirt.StoragePoolState) string {
 	return "inactive"
 }
 
-func CreatePool(name, ptype, target, sourceHost, sourcePath string) (*libvirt.StoragePool, error) {
-	pool, err := DefinePool(name, ptype, target, sourceHost, sourcePath)
+func CreatePool(name, ptype, target, sourceHost, sourceName, sourcePath string) (*libvirt.StoragePool, error) {
+	pool, err := DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +43,7 @@ func CreatePool(name, ptype, target, sourceHost, sourcePath string) (*libvirt.St
 	return pool, nil
 }
 
-func DefinePool(name, ptype, target, sourceHost, sourcePath string) (*libvirt.StoragePool, error) {
+func DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath string) (*libvirt.StoragePool, error) {
 	conn, err := GetConn()
 	defer conn.Close()
 	if err != nil {
@@ -65,10 +66,23 @@ func DefinePool(name, ptype, target, sourceHost, sourcePath string) (*libvirt.St
 					Name: sourceHost,
 				},
 			},
+			Name: sourceName,
+			Auth: &libvirtxml.StoragePoolSourceAuth{},
 		},
 		Target: &libvirtxml.StoragePoolTarget{
 			Path: target,
 		},
+	}
+	if ptype == constant.PoolRbdType {
+		secret, err := GetOrCreateCephTypeSecret("client.admin")
+		if err != nil {
+			return nil, err
+		}
+		poolXML.Source.Auth.Type = "ceph"
+		poolXML.Source.Auth.Username = "admin"
+		poolXML.Source.Auth.Secret = &libvirtxml.StoragePoolSourceAuthSecret{
+			UUID: secret,
+		}
 	}
 	poolDoc, err := poolXML.Marshal()
 	if err != nil {

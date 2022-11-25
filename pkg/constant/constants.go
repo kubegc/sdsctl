@@ -24,10 +24,15 @@ const (
 
 // pool type
 const (
-	PoolCephType  = "ceph"
-	PoolNFSType   = "nfs"
-	PoolNetfsType = "netfs"
-	PoolDirType   = "dir"
+	// yaml spec
+	PoolCephfsType  = "cephfs"
+	PoolNetfsType   = "netfs"
+	PoolCephRbdType = "cephrbd"
+
+	// virsh spec
+	PoolDirType = "dir"
+	PoolNFSType = "nfs"
+	PoolRbdType = "rbd"
 )
 
 // rook

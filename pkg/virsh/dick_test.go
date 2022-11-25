@@ -11,7 +11,7 @@ func TestCreateDisk(t *testing.T) {
 }
 
 func TestGetDisk(t *testing.T) {
-	disk, err := GetDisk("pooltest2", "disktest2", "qcow2")
+	disk, err := GetDisk("pooltest2", "disktest2")
 	fmt.Printf("disk: %+v", disk)
 	fmt.Printf("err: %+v", err)
 }

@@ -53,14 +53,19 @@ func NewCreatePoolCommand() *cli.Command {
 				Name:  "source-path",
 				Usage: "mount path of remote storage server",
 			},
+			&cli.StringFlag{
+				Name:  "source-name",
+				Usage: "source rbd name of remote storage server",
+			},
 		},
 	}
 }
 
 var poolTypeTrans = map[string]string{
-	constant.PoolCephType: constant.PoolDirType,
-	constant.PoolNFSType:  constant.PoolNetfsType,
-	constant.PoolDirType:  constant.PoolDirType,
+	constant.PoolCephfsType:  constant.PoolDirType,
+	constant.PoolNFSType:     constant.PoolNetfsType,
+	constant.PoolDirType:     constant.PoolDirType,
+	constant.PoolCephRbdType: constant.PoolRbdType,
 }
 
 func createPool(ctx *cli.Context) error {
@@ -77,8 +82,8 @@ func createPool(ctx *cli.Context) error {
 	if !utils.Exists(ctx.String("url")) {
 		utils.CreateDir(ctx.String("url"))
 	}
-	sourceHost, sourcePath := ctx.String("source-host"), ctx.String("source-path")
-	if ptype == constant.PoolCephType {
+	sourceHost, sourceName, sourcePath := ctx.String("source-host"), ctx.String("source-name"), ctx.String("source-path")
+	if ptype == constant.PoolCephfsType {
 		secret, err := rook.GetSecret()
 		if err != nil {
 			logger.Errorf("fail to get ceph secret: %+v", err)
@@ -102,17 +107,27 @@ func createPool(ctx *cli.Context) error {
 		if err != nil || resp.Code != constant.STATUS_OK {
 			return fmt.Errorf("grpc call err: %+v", resp.Message)
 		}
+	} else if ptype == constant.PoolCephRbdType {
+		// create rook ceph rbd pool
+		if err := rook.CreateRbdPool(sourceName); err != nil {
+			return err
+		}
+		if err := rook.WaitRbdPoolReady(sourceName); err != nil {
+			return err
+		}
 	}
-	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourcePath)
+	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
 	if err != nil {
 		logger.Errorf("CreatePool err:%+v", err)
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
+	logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		logger.Errorf("AutoStartPool err:%+v", err)
 		return err
 	}
+	logger.Infof("write content")
 	// write content file
 	contentPath := filepath.Join(ctx.String("url"), "content")
 	var content = []byte(ctx.String("content"))

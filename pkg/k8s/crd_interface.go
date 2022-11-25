@@ -28,6 +28,7 @@ type KsCrd struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 	Spec              runtime.RawExtension `json:"spec,omitempty"`
+	Status            runtime.RawExtension `json:"status,omitempty"`
 }
 
 type KsCrdList struct {
@@ -234,7 +235,6 @@ func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value 
 		return err
 	}
 	return nil
-
 }
 
 func (ks *KsGvr) Delete(ctx context.Context, namespace string, name string) error {
