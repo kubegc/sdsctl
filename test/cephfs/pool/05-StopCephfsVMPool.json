@@ -11,7 +11,7 @@
     "nodeName": "vm.wanna",
     "lifecycle": {
       "stopPool": {
-        "type": "ceph",
+        "type": "cephfs",
         "pool": "cephfspool"
       }
     }

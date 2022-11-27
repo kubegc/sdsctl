@@ -6,7 +6,6 @@ import (
 	libvirtxml "github.com/libvirt/libvirt-go-xml"
 	"libvirt.org/go/libvirt"
 	"strings"
-	"time"
 )
 
 func GetCephAdminSecret(name string) ([]byte, error) {
@@ -34,16 +33,11 @@ func SetSecretValue(usageName string) error {
 	if err != nil {
 		return err
 	}
-	var uuid string
-	for i := 0; i < 10; i++ {
-		secret, err := conn.LookupSecretByUsage(libvirt.SECRET_USAGE_TYPE_CEPH, usageName)
-		if err == nil {
-			uuid, err = secret.GetUUIDString()
-			break
-		}
-		fmt.Println("no secret here!!")
-		time.Sleep(500 * time.Millisecond)
+	secret, err := conn.LookupSecretByUsage(libvirt.SECRET_USAGE_TYPE_CEPH, usageName)
+	if err != nil {
+		return err
 	}
+	uuid, err := secret.GetUUIDString()
 	cmd := &utils.Command{
 		Cmd: fmt.Sprintf("virsh secret-set-value --secret %s --base64 $(ceph auth get-key %s)", uuid, usageName),
 	}

@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachinePool",
   "metadata": {
-    "name": "cephfspool",
+    "name": "cephrbdpool",
     "labels": {
       "host": "vm.wanna"
     }
@@ -10,10 +10,9 @@
   "spec": {
     "nodeName": "vm.wanna",
     "lifecycle": {
-      "autoStartPool": {
-        "type": "cephfs",
-        "pool": "cephfspool",
-        "auto-start": "true"
+      "startPool": {
+        "type": "cephrbd",
+        "pool": "cephrbdpool"
       }
     }
   }
