@@ -6,6 +6,11 @@ cd ${CURRENT_DIR}/nfs
 kubectl create -f nfs.yaml
 kubectl create -f object.yaml
 
+# set backend
+ceph mgr module enable rook
+ceph mgr module enable nfs
+ceph orch set backend rook
+
 # wait for nfs cluster ready
 for i in `seq 1 20`
 do
