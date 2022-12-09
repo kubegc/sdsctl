@@ -10,6 +10,11 @@ if [ ! -d "/etc/rook/" ];then
   mkdir /etc/rook/
 fi
 
+# create dir
+if [ ! -d "/etc/ceph/" ];then
+  mkdir /etc/ceph/
+fi
+
 # create a ceph config file in its default location so ceph/rados tools can be used
 # without specifying any arguments
 write_endpoints() {
