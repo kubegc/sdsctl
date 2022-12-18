@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -131,6 +132,19 @@ func CopyToRemoteFile(ip, localPath, remotePath string) error {
 	}
 	_, err := cmd.Execute()
 	return err
+}
+
+func GetFiles(dirPath string) []string {
+	res := make([]string, 0)
+	files, _ := ioutil.ReadDir(dirPath)
+	for _, file := range files {
+		if file.IsDir() {
+			res = append(res, GetFiles(filepath.Join(dirPath, file.Name()))...)
+		} else {
+			res = append(res, filepath.Join(dirPath, file.Name()))
+		}
+	}
+	return res
 }
 
 func Pwd() (string, error) {

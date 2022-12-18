@@ -2,7 +2,7 @@ package ftp
 
 import (
 	"fmt"
-	"github.com/jlaffaye/ftp"
+	ftpclient "github.com/jlaffaye/ftp"
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"io"
 	"os"
@@ -15,11 +15,11 @@ type FtpClient struct {
 	Port     string
 	Username string
 	Password string
-	Conn     *ftp.ServerConn
+	Conn     *ftpclient.ServerConn
 }
 
 func NewFtpClient(host, port, username, password string) (*FtpClient, error) {
-	c, err := ftp.Dial(fmt.Sprintf("%s:%s", host, port), ftp.DialWithTimeout(5*time.Second))
+	c, err := ftpclient.Dial(fmt.Sprintf("%s:%s", host, port), ftpclient.DialWithTimeout(5*time.Second))
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +51,28 @@ func (ftp *FtpClient) ListDir(dirPath string) ([]string, error) {
 	files := make([]string, 0)
 	for _, entry := range entries {
 		files = append(files, entry.Name)
+	}
+	return files, nil
+}
+
+func (ftp *FtpClient) ListFiles(dirPath string) ([]string, error) {
+	exsit := ftp.IsDirExsit(dirPath)
+	if !exsit {
+		return nil, fmt.Errorf("no such dir:%s", dirPath)
+	}
+	entries, err := ftp.Conn.List(dirPath)
+	if err != nil {
+		return nil, err
+	}
+	files := make([]string, 0)
+	for _, entry := range entries {
+		if entry.Type == ftpclient.EntryTypeFolder {
+			tmp, _ := ftp.ListFiles(filepath.Join(dirPath, entry.Name))
+			files = append(files, tmp...)
+		} else if entry.Type == ftpclient.EntryTypeFile {
+			files = append(files, filepath.Join(dirPath, entry.Name))
+		}
+
 	}
 	return files, nil
 }
@@ -104,7 +126,15 @@ func (ftp *FtpClient) DeleteFile(filePath string) error {
 	if !exsit {
 		return fmt.Errorf("no such dirPath:%s", dirPath)
 	}
-	return ftp.DeleteFile(filePath)
+	return ftp.Conn.Delete(filePath)
+}
+
+func (ftp *FtpClient) DeleteDir(fileDirPath string) error {
+	exsit := ftp.IsDirExsit(fileDirPath)
+	if !exsit {
+		return fmt.Errorf("no such dirPath:%s", fileDirPath)
+	}
+	return ftp.Conn.RemoveDirRecur(fileDirPath)
 }
 
 func (ftp *FtpClient) UploadFile(localFilePath, targetDirPath string) error {
@@ -140,8 +170,20 @@ func (ftp *FtpClient) UploadFile(localFilePath, targetDirPath string) error {
 	return err
 }
 
-func (ftp *FtpClient) UploadDir() {
-
+func (ftp *FtpClient) UploadDir(localDirPath, targetDirPath string) error {
+	if !utils.Exists(localDirPath) {
+		return fmt.Errorf("no such dir:%s", localDirPath)
+	}
+	if !ftp.IsDirExsit(targetDirPath) {
+		ftp.Mkdir(targetDirPath)
+	}
+	files := utils.GetFiles(localDirPath)
+	for _, file := range files {
+		if err := ftp.UploadFile(file, targetDirPath); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (ftp *FtpClient) DownloadFile(localDirPath, remoteFilePath string) error {
@@ -175,6 +217,21 @@ func (ftp *FtpClient) DownloadFile(localDirPath, remoteFilePath string) error {
 	return nil
 }
 
-func (ftp *FtpClient) DownloadDir() {
-
+func (ftp *FtpClient) DownloadDir(localDirPath, remoteDirPath string) error {
+	if utils.Exists(localDirPath) {
+		os.MkdirAll(localDirPath, os.ModePerm)
+	}
+	if !ftp.IsDirExsit(remoteDirPath) {
+		return fmt.Errorf("no such dir:%s", remoteDirPath)
+	}
+	files, err := ftp.ListFiles(remoteDirPath)
+	if err != nil {
+		return err
+	}
+	for _, file := range files {
+		if err := ftp.DownloadFile(localDirPath, filepath.Join(remoteDirPath, file)); err != nil {
+			return err
+		}
+	}
+	return nil
 }
