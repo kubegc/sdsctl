@@ -53,4 +53,5 @@ ceph nfs export create cephfs my-nfs /share myfs /volumes/share
 #if [ ! -d "/var/lib/libvirt/share/" ];then
 #  mkdir /var/lib/libvirt/share
 #fi
-#mount -t nfs 10.99.231.101:/share /var/lib/libvirt/share
+#mount -t nfs4 10.99.229.63:/share /var/lib/libvirt/share
+#mount -t nfs4 10.110.250.148:/share /var/lib/libvirt/share

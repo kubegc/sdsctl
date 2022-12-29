@@ -28,6 +28,8 @@ const (
 	PoolCephfsType  = "cephfs"
 	PoolNetfsType   = "netfs"
 	PoolCephRbdType = "cephrbd"
+	PoolCephNFSType = "cephnfs"
+	PoolCephRgwType = "cephrgw"
 
 	// virsh spec
 	PoolDirType = "dir"
@@ -37,8 +39,10 @@ const (
 
 // rook
 const (
-	DefaultMdsNamespace = "myfs"
-	DefaultName         = "admin"
+	DefaultMdsNamespace   = "myfs"
+	DefaultName           = "admin"
+	DefaultNFSClusterName = "my-nfs"
+	DefaultCephRwgName    = "ceph-delete-bucket"
 )
 
 const (
@@ -58,6 +62,8 @@ const (
 	DefaultRookVersion   = "v1"
 	CephBlockPool_Kind   = "CephBlockPool"
 	CephBlockPoolS_Kinds = "cephblockpools"
+	CephNFSPool_Kind     = "CephNFS"
+	CephNFSPoolS_Kinds   = "cephnfses"
 )
 
 // k8s CRD

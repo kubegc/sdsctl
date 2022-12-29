@@ -128,6 +128,7 @@ var plural2kindMaps = map[string]string{
 	constant.VMDSNS_Kinds:         constant.VMDSN_Kind,
 	constant.VMDIS_KINDS:          constant.VMDI_KIND,
 	constant.CephBlockPoolS_Kinds: constant.CephBlockPool_Kind,
+	"objectbucketclaims":          "ObjectBucketClaim",
 }
 
 func (ks *KsGvr) Create(ctx context.Context, namespace, name, key string, value interface{}) error {
