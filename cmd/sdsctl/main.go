@@ -24,6 +24,14 @@ func main() {
 		pool.NewAutoStartPoolCommand(),
 		pool.NewStartPoolCommand(),
 
+		// nfs pool
+		pool.NewCreateNFSPoolCommand(),
+		pool.NewDeleteNFSPoolCommand(),
+
+		// rgw pool
+		pool.NewCreateRgwPoolCommand(),
+		pool.NewDeleteRgwPoolCommand(),
+
 		// disk commands
 		disk.NewShowDiskCommand(),
 		disk.NewCreateDiskCommand(),
