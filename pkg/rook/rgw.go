@@ -6,45 +6,56 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
+	v1 "k8s.io/api/core/v1"
+	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
 )
 
 func CreateOBC(obcName string) error {
-	//ksgvr := k8s.NewExternalGvr("objectbucket.io", "v1alpha1", "ObjectBucketClaim")
-	//res := make(map[string]interface{})
-	//res["generateBucketName"] = "ceph-bkt"
-	//res["storageClassName"] = "rook-ceph-delete-bucket"
-	//return ksgvr.CreateExternalCrd(context.TODO(), constant.DefaultNamespace, obcName, "spec", res)
-	cmd := &utils.Command{
-		Cmd: "kubectl apply -f https://gitee.com/syswu/yamls/raw/master/storage/cephrgw/2-object-bucket-claim-delete.yaml",
-	}
-	_, err := cmd.Execute()
-	return err
+	ksgvr := k8s.NewExternalGvr("objectbucket.io", "v1alpha1", "objectbucketclaims")
+	res := make(map[string]interface{})
+	res["generateBucketName"] = "ceph-bkt"
+	res["storageClassName"] = "rook-ceph-delete-bucket"
+	return ksgvr.CreateExternalCrd(context.TODO(), constant.DefaultNamespace, obcName, "spec", res)
 }
 
-func DeleteOBC() error {
-	cmd := &utils.Command{
-		Cmd: "kubectl delete -f https://gitee.com/syswu/yamls/raw/master/storage/cephrgw/2-object-bucket-claim-delete.yaml",
-	}
-	_, err := cmd.Execute()
-	return err
+func DeleteOBC(obcName string) error {
+	ksgvr := k8s.NewExternalGvr("objectbucket.io", "v1alpha1", "objectbucketclaims")
+	return ksgvr.Delete(context.TODO(), constant.DefaultNamespace, obcName)
 }
 
 func CreateBucketStorageClass() error {
-	cmd := &utils.Command{
-		Cmd: "kubectl apply -f https://gitee.com/syswu/yamls/raw/master/storage/cephrgw/1-storageclass-bucket-delete.yaml",
+	client, err := k8s.NewClient()
+	if err != nil {
+		return err
 	}
-	_, err := cmd.Execute()
+	policy := v1.PersistentVolumeReclaimDelete
+	obj := &storagev1.StorageClass{
+		TypeMeta: metav1.TypeMeta{
+			Kind:       "StorageClass",
+			APIVersion: "storage.k8s.io/v1",
+		},
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "rook-ceph-delete-bucket",
+		},
+		Provisioner:   "rook-ceph.ceph.rook.io/bucket",
+		ReclaimPolicy: &policy,
+		Parameters: map[string]string{
+			"objectStoreName":      "my-store",
+			"objectStoreNamespace": "rook-ceph",
+		},
+	}
+	_, err = client.StorageV1().StorageClasses().Create(context.TODO(), obj, metav1.CreateOptions{})
 	return err
 }
 
 func DeleteBucketStorageClass() error {
-	cmd := &utils.Command{
-		Cmd: "kubectl delete -f https://gitee.com/syswu/yamls/raw/master/storage/cephrgw/1-storageclass-bucket-delete.yaml",
+	client, err := k8s.NewClient()
+	if err != nil {
+		return err
 	}
-	_, err := cmd.Execute()
-	return err
+	return client.StorageV1().StorageClasses().Delete(context.TODO(), "rook-ceph-delete-bucket", metav1.DeleteOptions{})
 }
 
 func GetBucketInfo(cmName string) (map[string]string, error) {

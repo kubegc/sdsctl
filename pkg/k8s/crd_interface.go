@@ -186,6 +186,21 @@ spec:
 	return err
 }
 
+func (ks *KsGvr) CreatePlainExternalCrd(ctx context.Context, namespace, createData string) error {
+	bytes, _ := yamltrans.YAMLToJSON([]byte(createData))
+	client, err := GetCRDClient()
+	if err != nil {
+		return err
+	}
+	decoder := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
+	obj := &unstructured.Unstructured{}
+	if _, _, err = decoder.Decode(bytes, nil, obj); err != nil {
+		return err
+	}
+	_, err = client.Resource(ks.gvr).Namespace(namespace).Create(ctx, obj, metav1.CreateOptions{})
+	return err
+}
+
 func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value interface{}) error {
 	client, err := GetCRDClient()
 	if err != nil {

@@ -44,16 +44,18 @@ func createRgwPool(ctx *cli.Context) error {
 	}
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 	flags := map[string]string{
-		"pool":           name,
-		"content":        "vmdi",
-		"type":           constant.PoolCephRgwType,
-		"host":           info["host"],
-		"server-address": fmt.Sprintf("%s:%s", info["ip"], info["port"]),
-		"bucket":         info["name"],
-		"access-id":      secret["access-id"],
-		"access-key":     secret["access-key"],
+		"pool":       name,
+		"content":    "vmdi",
+		"type":       constant.PoolCephRgwType,
+		"host":       info["host"],
+		"bucket":     info["name"],
+		"access-id":  secret["access-id"],
+		"access-key": secret["access-key"],
+		"url":        fmt.Sprintf("%s:%s", info["ip"], info["port"]),
+		"state":      constant.CRD_Pool_Active,
+		"autostart":  "false",
 	}
-	if err := ksgvr.Update(ctx.Context, constant.RookNamespace, name, constant.CRD_Pool_Key, flags); err != nil {
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, name, constant.CRD_Pool_Key, flags); err != nil {
 		return err
 	}
 	return nil

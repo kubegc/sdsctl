@@ -67,12 +67,13 @@ func ExportDeleteNFSPath(poolName, nfsPath string) error {
 	if _, err := comm.Execute(); err != nil {
 		return err
 	}
-	comm2 := &utils.Command{
-		Cmd: fmt.Sprintf("ceph fs subvolumegroup rm myfs %s", nfsPath),
-	}
-	if _, err := comm2.Execute(); err != nil {
-		return err
-	}
+	// retain cephfs
+	//comm2 := &utils.Command{
+	//	Cmd: fmt.Sprintf("ceph fs subvolumegroup rm myfs %s", nfsPath),
+	//}
+	//if _, err := comm2.Execute(); err != nil {
+	//	return err
+	//}
 	return nil
 }
 
