@@ -133,3 +133,15 @@ func UmountNfs(path string) error {
 	}
 	return nil
 }
+
+func QueryNfsCapacity(path string) (string, error) {
+	scmd := fmt.Sprintf("df -h | grep %s | awk '{print $2}'", path)
+	comm := &utils.Command{
+		Cmd: scmd,
+	}
+	res, err := comm.Execute()
+	if err != nil {
+		return "", err
+	}
+	return res, nil
+}

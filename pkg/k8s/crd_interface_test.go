@@ -52,6 +52,15 @@ func TestKsGvr_Update(t *testing.T) {
 	fmt.Printf("err: %+v\n", err)
 }
 
+func TestKsGvr_Update2(t *testing.T) {
+	ksgvr := NewKsGvr(constant.VMPS_Kind)
+	data := map[string]interface{}{
+		"key1": "value1",
+	}
+	err := ksgvr.Update(context.TODO(), "default", "nfspooltest", "status.conditions.state.waiting", data)
+	fmt.Printf("err: %+v\n", err)
+}
+
 func TestKsGvr_Delete(t *testing.T) {
 	ksgvr := NewKsGvr(constant.VMPS_Kind)
 	err := ksgvr.Delete(context.TODO(), "default", "pooltest111")

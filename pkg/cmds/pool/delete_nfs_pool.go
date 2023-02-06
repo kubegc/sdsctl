@@ -24,8 +24,9 @@ func NewDeleteNFSPoolCommand() *cli.Command {
 
 func deleteNFSPool(ctx *cli.Context) error {
 	name := ctx.String("name")
-	ksgvr := k8s.NewExternalGvr(constant.DefaultRookGroup, constant.DefaultRookVersion, constant.CephNFSPoolS_Kinds)
-	vmp, err := ksgvr.Get(ctx.Context, constant.RookNamespace, name)
+	//ksgvr := k8s.NewExternalGvr(constant.DefaultRookGroup, constant.DefaultRookVersion, constant.CephNFSPoolS_Kinds)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	vmp, err := ksgvr.Get(ctx.Context, constant.DefaultNamespace, name)
 	if err != nil {
 		return err
 	}
@@ -36,11 +37,7 @@ func deleteNFSPool(ctx *cli.Context) error {
 	if err := rook.ExportDeleteNFSPath(constant.DefaultNFSClusterName, name); err != nil {
 		return err
 	}
-	if err := ksgvr.Delete(ctx.Context, constant.RookNamespace, name); err != nil {
-		return err
-	}
 
 	// delete vmp
-	ksgvr2 := k8s.NewKsGvr(constant.VMPS_Kind)
-	return ksgvr2.Delete(ctx.Context, constant.DefaultNamespace, name)
+	return ksgvr.Delete(ctx.Context, constant.DefaultNamespace, name)
 }

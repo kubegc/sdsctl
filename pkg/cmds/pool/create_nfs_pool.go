@@ -47,6 +47,10 @@ func createNFSPool(ctx *cli.Context) error {
 		return err
 	}
 	//ksgvr := k8s.NewExternalGvr(constant.DefaultRookGroup, constant.DefaultRookVersion, constant.CephNFSPoolS_Kinds)
+	capacity, err := rook.QueryNfsCapacity(ctx.String("local-path"))
+	if err != nil {
+		return err
+	}
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 	flags := map[string]string{
 		"pool":        name,
@@ -54,8 +58,12 @@ func createNFSPool(ctx *cli.Context) error {
 		"type":        constant.PoolCephNFSType,
 		"server-path": fmt.Sprintf("%s:/%s", ip, nfsPath),
 		"local-path":  ctx.String("local-path"),
+		"url":         ctx.String("local-path"),
+		"state":       constant.CRD_Pool_Active,
+		"autostart":   "false",
+		"capacity":    capacity,
 	}
-	if err := ksgvr.Update(ctx.Context, constant.RookNamespace, name, constant.CRD_Pool_Key, flags); err != nil {
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, name, constant.CRD_Pool_Key, flags); err != nil {
 		return err
 	}
 	return nil
