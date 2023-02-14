@@ -25,7 +25,7 @@ func NewDeleteRgwPoolCommand() *cli.Command {
 func deleteRgwPool(ctx *cli.Context) error {
 	name := ctx.String("name")
 	// delete storageclass & obc
-	if err := rook.DeleteOBC(name); err != nil {
+	if err := rook.DeleteOBC(constant.DefaultCephRwgName); err != nil {
 		return err
 	}
 	if err := rook.DeleteBucketStorageClass(); err != nil {

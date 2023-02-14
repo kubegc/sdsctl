@@ -56,7 +56,7 @@ func deleteDiskImage(ctx *cli.Context) error {
 		return err
 	}
 
-	// delet vmdi
+	// delete vmdi
 	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
 	if err = ksgvr.Delete(ctx.Context, constant.DefaultNamespace, ctx.String("name")); err != nil {
 		return err

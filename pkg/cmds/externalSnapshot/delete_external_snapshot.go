@@ -94,7 +94,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 			// live chain
 			logger.Infof("domain LiveBlockForVMDisk")
 			if err := virsh.LiveBlockForVMDisk(domain, config["current"], backFile); err != nil {
-				logger.Errorf("LiveBlockForVMDisk err:%+v", err)
+				logger.Errorf("LiveBlocksForVMDisk err:%+v", err)
 				return err
 			}
 		} else {

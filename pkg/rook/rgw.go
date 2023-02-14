@@ -10,6 +10,7 @@ import (
 	storagev1 "k8s.io/api/storage/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
+	"time"
 )
 
 func CreateOBC(obcName string) error {
@@ -55,6 +56,18 @@ func DeleteBucketStorageClass() error {
 	if err != nil {
 		return err
 	}
+	ksgvr := k8s.NewExternalGvr("objectbucket.io", "v1alpha1", "objectbucketclaims")
+	for i := 0; i < 60; i++ {
+		obj, err := ksgvr.Get(context.TODO(), constant.DefaultNamespace, constant.DefaultCephRwgName)
+		if obj != nil && err == nil {
+			time.Sleep(3 * time.Second)
+		} else {
+			break
+		}
+	}
+	if err != nil {
+		return err
+	}
 	return client.StorageV1().StorageClasses().Delete(context.TODO(), "rook-ceph-delete-bucket", metav1.DeleteOptions{})
 }
 
@@ -66,10 +79,18 @@ func GetBucketInfo(cmName string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	cm, err := client.CoreV1().ConfigMaps(constant.DefaultNamespace).Get(context.TODO(), cmName, metav1.GetOptions{})
-	if err != nil {
+	var cm *v1.ConfigMap
+	for i := 0; i < 30; i++ {
+		cm, err = client.CoreV1().ConfigMaps(constant.DefaultNamespace).Get(context.TODO(), cmName, metav1.GetOptions{})
+		if err == nil && cm != nil {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
+	if cm == nil {
 		return nil, err
 	}
+
 	host := cm.Data["BUCKET_HOST"]
 	name := cm.Data["BUCKET_NAME"]
 	port := cm.Data["BUCKET_PORT"]
@@ -94,8 +115,16 @@ func GetBucketSecret(secretName string) (map[string]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	cm, err := client.CoreV1().Secrets(constant.DefaultNamespace).Get(context.TODO(), secretName, metav1.GetOptions{})
-	if err != nil {
+	var cm *v1.Secret
+	for i := 0; i < 30; i++ {
+		cm, err = client.CoreV1().Secrets(constant.DefaultNamespace).Get(context.TODO(), secretName, metav1.GetOptions{})
+		if err == nil && cm != nil {
+			break
+		}
+		time.Sleep(1 * time.Second)
+	}
+
+	if cm == nil {
 		return nil, err
 	}
 	accessId := string(cm.Data["AWS_ACCESS_KEY_ID"])
