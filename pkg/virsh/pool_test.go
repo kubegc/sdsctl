@@ -19,7 +19,7 @@ func TestGetPoolInfo(t *testing.T) {
 }
 
 func TestCreateLocalPool(t *testing.T) {
-	pool, err := CreatePool("pooltest4", "dir", "/var/lib/libvirt/pooltest4", "", "", "")
+	pool, err := CreatePool("pooltest456", "dir", "/var/lib/libvirt/pooltest456", "", "", "")
 	fmt.Printf("err: %+v\n", err)
 	info, _ := pool.GetInfo()
 	fmt.Printf("info: %+v\n", info)

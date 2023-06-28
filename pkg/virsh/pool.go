@@ -67,7 +67,7 @@ func DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath string) 
 				},
 			},
 			Name: sourceName,
-			Auth: &libvirtxml.StoragePoolSourceAuth{},
+			//Auth: &libvirtxml.StoragePoolSourceAuth{},
 		},
 		Target: &libvirtxml.StoragePoolTarget{
 			Path: target,
