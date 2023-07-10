@@ -14,7 +14,7 @@
         "type": "dir",
         "url": "/var/lib/libvirt/pooltest111",
         "content": "vmd",
-        "auto-start": "true"
+        "auto-start": true
       }
     }
   }
