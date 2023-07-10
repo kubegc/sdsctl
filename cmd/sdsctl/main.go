@@ -8,7 +8,6 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/cmds/image"
 	"github.com/kube-stack/sdsctl/pkg/cmds/internalSnapshot"
 	"github.com/kube-stack/sdsctl/pkg/cmds/pool"
-	"github.com/kube-stack/sdsctl/pkg/cmds/vm"
 	"github.com/urfave/cli/v2"
 	"os"
 )
@@ -58,7 +57,6 @@ func main() {
 		internalSnapshot.NewDeleteInternalSnapshotCommand(),
 
 		// vm commands
-		vm.NewMigrateCommand(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
