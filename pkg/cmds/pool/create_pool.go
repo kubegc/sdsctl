@@ -72,10 +72,11 @@ var poolTypeTrans = map[string]string{
 func backcreatePool(ctx *cli.Context) error {
 	err := createPool(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
-	logger := utils.GetLogger()
+	//logger := utils.GetLogger()
 
 	if err != nil && !strings.Contains(err.Error(), "already exists") {
-		logger.Errorf("err here2: %+v", err)
+		//logger.Errorf("err here2: %+v", err)
+		virsh.DeletePool(ctx.String("pool"))
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
 	}
 	return err
@@ -133,7 +134,7 @@ func createPool(ctx *cli.Context) error {
 		}
 	}
 	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		logger.Errorf("CreatePool err:%+v", err)
 		virsh.DeletePool(ctx.String("pool"))
 		return err
@@ -167,8 +168,7 @@ func createPool(ctx *cli.Context) error {
 	}
 	flags = utils.MergeFlags(flags, extra)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, flags); err != nil {
-		logger.Errorf("err here: %+v", err)
-		virsh.DeletePool(ctx.String("pool"))
+		//logger.Errorf("err here: %+v", err)
 		return err
 	}
 	return nil
