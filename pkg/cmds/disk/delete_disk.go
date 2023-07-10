@@ -35,6 +35,7 @@ func NewDeleteDiskCommand() *cli.Command {
 	}
 }
 
+// sdsctl delete-disk --pool poolhub111 --vol diskhub111
 func backdeleteDisk(ctx *cli.Context) error {
 	err := deleteDisk(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)

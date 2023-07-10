@@ -40,6 +40,8 @@ func NewResizeDiskCommand() *cli.Command {
 	}
 }
 
+//sdsctl resize-disk --capacity 3G --pool poolhub111 --type localfs --vol diskhub111
+
 func backresizeDisk(ctx *cli.Context) error {
 	err := resizeDisk(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)

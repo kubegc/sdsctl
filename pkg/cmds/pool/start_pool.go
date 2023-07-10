@@ -28,6 +28,7 @@ func NewStartPoolCommand() *cli.Command {
 	}
 }
 
+// sdsctl start-pool --pool poolhub111
 func backstartPool(ctx *cli.Context) error {
 	err := startPool(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)

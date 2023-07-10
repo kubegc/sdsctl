@@ -82,6 +82,7 @@ func backcreatePool(ctx *cli.Context) error {
 	return err
 }
 
+// sdsctl create-pool --auto-start --content vmd --type dir --url /var/lib/libvirt/poolhub111 --pool poolhub111
 func createPool(ctx *cli.Context) error {
 	logger := utils.GetLogger()
 	ptype := ctx.String("type")

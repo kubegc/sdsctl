@@ -55,6 +55,7 @@ func backcreateDisk(ctx *cli.Context) error {
 	return err
 }
 
+// sdsctl create-disk --capacity 10G --format qcow2 --pool poolhub111 --type localfs --vol diskhub111
 func createDisk(ctx *cli.Context) error {
 	logger := utils.GetLogger()
 	pool := ctx.String("pool")
