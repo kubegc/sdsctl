@@ -280,7 +280,7 @@ func (ks *KsGvr) UpdateWithStatus(ctx context.Context, namespace, name, key stri
 
 	// update spec
 	//fmt.Printf("before:%s\n", string(kscrd.Spec.Raw))
-	var bytes []byte
+	bytes := kscrd.Spec.Raw
 	if value != nil {
 		bytes, err = sjson.SetBytes(kscrd.Spec.Raw, key, value)
 		if err != nil {
