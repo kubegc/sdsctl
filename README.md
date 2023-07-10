@@ -12,6 +12,8 @@ cp sdsctl /usr/bin
 
 # usage
 ```shell
+# ref: https://github.com/kube-stack/sdsctl/blob/main/cmd/sdsctl/main.go
+# ref: https://github.com/kube-stack/sdsctl/blob/main/pkg/cmds/root.go
 sdsctl --help
 
 # ref: https://github.com/kube-stack/sdsctl/blob/main/pkg/cmds/pool/create_pool.go
