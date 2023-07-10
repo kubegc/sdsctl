@@ -18,7 +18,7 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 		Name:      "create-disk-from-image",
 		Usage:     "create disk from image for kubestack",
 		UsageText: "sdsctl [global options] create-disk-from-image [options]",
-		Action:    createDiskFromImage,
+		Action:    backcreateDiskFromImage,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -43,6 +43,15 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateDiskFromImage(ctx *cli.Context) error {
+	err := createDiskFromImage(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createDiskFromImage(ctx *cli.Context) error {

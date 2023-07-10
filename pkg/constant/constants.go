@@ -32,9 +32,10 @@ const (
 	PoolCephRgwType = "cephrgw"
 
 	// virsh spec
-	PoolDirType = "dir"
-	PoolNFSType = "nfs"
-	PoolRbdType = "rbd"
+	PoolDirType     = "dir"
+	PoolLocalFsType = "localfs"
+	PoolNFSType     = "nfs"
+	PoolRbdType     = "rbd"
 )
 
 // rook

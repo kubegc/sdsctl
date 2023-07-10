@@ -14,7 +14,7 @@ func NewCreateInternalSnapshotCommand() *cli.Command {
 		Name:      "create-internal-snapshot",
 		Usage:     "create internal snapshot for kubestack",
 		UsageText: "sdsctl [global options] create-internal-snapshot [options]",
-		Action:    createInternalSnapshot,
+		Action:    backcreateInternalSnapshot,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -35,6 +35,16 @@ func NewCreateInternalSnapshotCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateInternalSnapshot(ctx *cli.Context) error {
+	err := createInternalSnapshot(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	updateKey := fmt.Sprintf("%s.snapshots", constant.CRD_Volume_Key)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), updateKey, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func checkDomainDisk(ctx *cli.Context, domainName string) error {

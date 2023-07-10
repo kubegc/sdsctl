@@ -12,7 +12,7 @@ func NewDeleteRgwPoolCommand() *cli.Command {
 		Name:      "delete-rgw-pool",
 		Usage:     "delete rgw image pool for kubestack",
 		UsageText: "sdsctl [global options] delete-rgw-pool [options]",
-		Action:    deleteRgwPool,
+		Action:    backdeleteRgwPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -20,6 +20,15 @@ func NewDeleteRgwPoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backdeleteRgwPool(ctx *cli.Context) error {
+	err := deleteRgwPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func deleteRgwPool(ctx *cli.Context) error {

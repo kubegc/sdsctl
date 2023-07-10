@@ -13,7 +13,7 @@ func NewCreateRgwPoolCommand() *cli.Command {
 		Name:      "create-rgw-pool",
 		Usage:     "create rgw image pool for kubestack",
 		UsageText: "sdsctl [global options] create-rgw-pool [options]",
-		Action:    createRgwPool,
+		Action:    backcreateRgwPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -21,6 +21,15 @@ func NewCreateRgwPoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateRgwPool(ctx *cli.Context) error {
+	err := createRgwPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createRgwPool(ctx *cli.Context) error {

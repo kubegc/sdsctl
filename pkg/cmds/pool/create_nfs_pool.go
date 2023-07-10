@@ -13,7 +13,7 @@ func NewCreateNFSPoolCommand() *cli.Command {
 		Name:      "create-nfs-pool",
 		Usage:     "create nfs image pool for kubestack",
 		UsageText: "sdsctl [global options] create-nfs-pool [options]",
-		Action:    createNFSPool,
+		Action:    backcreateNFSPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -25,6 +25,15 @@ func NewCreateNFSPoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateNFSPool(ctx *cli.Context) error {
+	err := createNFSPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createNFSPool(ctx *cli.Context) error {

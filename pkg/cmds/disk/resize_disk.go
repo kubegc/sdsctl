@@ -15,7 +15,7 @@ func NewResizeDiskCommand() *cli.Command {
 		Name:      "resize-disk",
 		Usage:     "resize kvm disk for kubestack",
 		UsageText: "sdsctl [global options] resize-disk [options]",
-		Action:    resizeDisk,
+		Action:    backresizeDisk,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -37,6 +37,15 @@ func NewResizeDiskCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backresizeDisk(ctx *cli.Context) error {
+	err := resizeDisk(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func resizeDisk(ctx *cli.Context) error {

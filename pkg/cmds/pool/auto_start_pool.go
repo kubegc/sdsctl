@@ -6,7 +6,6 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
-	"strconv"
 )
 
 func NewAutoStartPoolCommand() *cli.Command {
@@ -14,7 +13,7 @@ func NewAutoStartPoolCommand() *cli.Command {
 		Name:      "auto-start-pool",
 		Usage:     "auto-start kvm pool for kubestack",
 		UsageText: "sdsctl [global options] auto-start-pool [options]",
-		Action:    autostartPool,
+		Action:    backautostartPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "pool",
@@ -25,20 +24,30 @@ func NewAutoStartPoolCommand() *cli.Command {
 				Usage: "storage pool type ",
 				Value: "dir",
 			},
-			&cli.StringFlag{
+			&cli.BoolFlag{
 				Name:  "auto-start",
 				Usage: "if auto-start pool",
-				Value: "true",
+				Value: true,
 			},
 		},
 	}
 }
 
-func autostartPool(ctx *cli.Context) error {
-	autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
+func backautostartPool(ctx *cli.Context) error {
+	err := autostartPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 	if err != nil {
-		return err
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
 	}
+	return err
+}
+
+func autostartPool(ctx *cli.Context) error {
+	//autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
+	//if err != nil {
+	//	return err
+	//}
+	autoStart := ctx.Bool("auto-start")
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		return err
 	}

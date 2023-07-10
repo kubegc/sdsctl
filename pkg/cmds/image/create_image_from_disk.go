@@ -2,6 +2,8 @@ package image
 
 import (
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
 )
@@ -11,7 +13,7 @@ func NewCreateImageFromDiskCommand() *cli.Command {
 		Name:      "create-image-from-disk",
 		Usage:     "create image from disk for kubestack",
 		UsageText: "sdsctl [global options] create-image-from-disk [options]",
-		Action:    createImageFromDisk,
+		Action:    backcreateImageFromDisk,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -36,6 +38,15 @@ func NewCreateImageFromDiskCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateImageFromDisk(ctx *cli.Context) error {
+	err := createImageFromDisk(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createImageFromDisk(ctx *cli.Context) error {

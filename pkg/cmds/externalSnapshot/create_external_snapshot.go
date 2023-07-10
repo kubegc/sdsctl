@@ -17,7 +17,7 @@ func NewCreateExternalSnapshotCommand() *cli.Command {
 		Name:      "create-external-snapshot",
 		Usage:     "create kvm snapshot for kubestack",
 		UsageText: "sdsctl [global options] create-external-snapshot [options]",
-		Action:    createExternalSnapshot,
+		Action:    backcreateExternalSnapshot,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -46,6 +46,15 @@ func NewCreateExternalSnapshotCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateExternalSnapshot(ctx *cli.Context) error {
+	err := createExternalSnapshot(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDSNS_Kinds)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createBackup(path string) {

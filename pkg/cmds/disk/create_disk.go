@@ -15,7 +15,7 @@ func NewCreateDiskCommand() *cli.Command {
 		Name:      "create-disk",
 		Usage:     "create kvm disk for kubestack",
 		UsageText: "sdsctl [global options] create-disk [options]",
-		Action:    createDisk,
+		Action:    backcreateDisk,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -41,6 +41,15 @@ func NewCreateDiskCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcreateDisk(ctx *cli.Context) error {
+	err := createDisk(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createDisk(ctx *cli.Context) error {

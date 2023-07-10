@@ -17,7 +17,7 @@ func NewDownloadDiskImageCommand() *cli.Command {
 		Name:      "download-disk-image",
 		Usage:     "download disk image for kubestack",
 		UsageText: "sdsctl [global options] download-disk-image [options]",
-		Action:    downloadDiskImage,
+		Action:    backdownloadDiskImage,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -37,6 +37,15 @@ func NewDownloadDiskImageCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backdownloadDiskImage(ctx *cli.Context) error {
+	err := downloadDiskImage(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func downloadDiskImage(ctx *cli.Context) error {

@@ -12,7 +12,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
-	"strconv"
 )
 
 func NewCreatePoolCommand() *cli.Command {
@@ -20,7 +19,7 @@ func NewCreatePoolCommand() *cli.Command {
 		Name:      "create-pool",
 		Usage:     "create kvm pool for kubestack",
 		UsageText: "sdsctl [global options] create-pool [options]",
-		Action:    createPool,
+		Action:    backcreatePool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "pool",
@@ -40,10 +39,10 @@ func NewCreatePoolCommand() *cli.Command {
 				Usage: "storage pool type",
 				Value: "vmd",
 			},
-			&cli.StringFlag{
+			&cli.BoolFlag{
 				Name:  "auto-start",
 				Usage: "if auto-start pool",
-				Value: "true",
+				//Value: true,
 			},
 			&cli.StringFlag{
 				Name:  "source-host",
@@ -65,20 +64,33 @@ var poolTypeTrans = map[string]string{
 	constant.PoolCephfsType:  constant.PoolDirType,
 	constant.PoolNFSType:     constant.PoolNetfsType,
 	constant.PoolDirType:     constant.PoolDirType,
+	constant.PoolLocalFsType: constant.PoolDirType,
 	constant.PoolCephRbdType: constant.PoolRbdType,
+}
+
+func backcreatePool(ctx *cli.Context) error {
+	err := createPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func createPool(ctx *cli.Context) error {
 	logger := utils.GetLogger()
 	ptype := ctx.String("type")
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 	if _, ok := poolTypeTrans[ptype]; !ok {
 		return fmt.Errorf("invalid pool type: %+v", ptype)
 	}
-	autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
-	if err != nil {
-		logger.Errorf("strconv.ParseBool auto-start err:%+v", err)
-		return err
-	}
+	//autoStart, err := strconv.ParseBool(ctx.String("auto-start"))
+	//if err != nil {
+	//	logger.Errorf("strconv.ParseBool auto-start err:%+v", err)
+	//	return err
+	//}
+	autoStart := ctx.Bool("auto-start")
+
 	if !utils.Exists(ctx.String("url")) {
 		utils.CreateDir(ctx.String("url"))
 	}
@@ -124,7 +136,6 @@ func createPool(ctx *cli.Context) error {
 	}
 	logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
-		logger.Errorf("AutoStartPool err:%+v", err)
 		return err
 	}
 	logger.Infof("write content")
@@ -133,7 +144,7 @@ func createPool(ctx *cli.Context) error {
 	var content = []byte(ctx.String("content"))
 	os.WriteFile(contentPath, content, 0666)
 	// update vmp
-	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+
 	flags := utils.ParseFlagMap(ctx)
 	delete(flags, "auto-start")
 	delete(flags, "source-host")

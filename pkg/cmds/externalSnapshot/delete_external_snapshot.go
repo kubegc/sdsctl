@@ -18,7 +18,7 @@ func NewDeleteExternalSnapshotCommand() *cli.Command {
 		Name:      "delete-external-snapshot",
 		Usage:     "delete kvm snapshot for kubestack",
 		UsageText: "sdsctl [global options] delete-external-snapshot [options]",
-		Action:    deleteExternalSnapshot,
+		Action:    backdeleteExternalSnapshot,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -43,6 +43,15 @@ func NewDeleteExternalSnapshotCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backdeleteExternalSnapshot(ctx *cli.Context) error {
+	err := deleteExternalSnapshot(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDSNS_Kinds)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func deleteExternalSnapshot(ctx *cli.Context) error {

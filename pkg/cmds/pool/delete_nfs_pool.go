@@ -12,7 +12,7 @@ func NewDeleteNFSPoolCommand() *cli.Command {
 		Name:      "delete-nfs-pool",
 		Usage:     "delete nfs image pool for kubestack",
 		UsageText: "sdsctl [global options] delete-nfs-pool [options]",
-		Action:    deleteNFSPool,
+		Action:    backdeleteNFSPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "name",
@@ -20,6 +20,15 @@ func NewDeleteNFSPoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backdeleteNFSPool(ctx *cli.Context) error {
+	err := deleteNFSPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func deleteNFSPool(ctx *cli.Context) error {

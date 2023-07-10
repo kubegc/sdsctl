@@ -2,6 +2,8 @@ package internalSnapshot
 
 import (
 	"fmt"
+	"github.com/kube-stack/sdsctl/pkg/constant"
+	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
@@ -12,7 +14,7 @@ func NewRevertInternalSnapshotCommand() *cli.Command {
 		Name:      "revert-internal-snapshot",
 		Usage:     "revert internal snapshot for kubestack",
 		UsageText: "sdsctl [global options] revert-internal-snapshot [options]",
-		Action:    revertInternalSnapshot,
+		Action:    backrevertInternalSnapshot,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -33,6 +35,16 @@ func NewRevertInternalSnapshotCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backrevertInternalSnapshot(ctx *cli.Context) error {
+	err := revertInternalSnapshot(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	updateKey := fmt.Sprintf("%s.snapshots", constant.CRD_Volume_Key)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), updateKey, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func revertInternalSnapshot(ctx *cli.Context) error {

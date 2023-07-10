@@ -12,7 +12,7 @@ func NewDeletePoolCommand() *cli.Command {
 		Name:      "delete-pool",
 		Usage:     "delete kvm pool for kubestack",
 		UsageText: "sdsctl [global options] delete-pool [options]",
-		Action:    deletePool,
+		Action:    backdeletePool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "pool",
@@ -25,6 +25,15 @@ func NewDeletePoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backdeletePool(ctx *cli.Context) error {
+	err := deletePool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func deletePool(ctx *cli.Context) error {

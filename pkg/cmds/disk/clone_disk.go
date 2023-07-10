@@ -17,7 +17,7 @@ func NewCloneDiskCommand() *cli.Command {
 		Name:      "clone-disk",
 		Usage:     "clone kvm disk for kubestack",
 		UsageText: "sdsctl [global options] clone-disk [options]",
-		Action:    cloneDisk,
+		Action:    backcloneDisk,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -43,6 +43,15 @@ func NewCloneDiskCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backcloneDisk(ctx *cli.Context) error {
+	err := cloneDisk(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func cloneDisk(ctx *cli.Context) error {

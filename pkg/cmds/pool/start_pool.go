@@ -13,7 +13,7 @@ func NewStartPoolCommand() *cli.Command {
 		Name:      "start-pool",
 		Usage:     "start kvm pool for kubestack",
 		UsageText: "sdsctl [global options] start-pool [options]",
-		Action:    startPool,
+		Action:    backstartPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "pool",
@@ -26,6 +26,15 @@ func NewStartPoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backstartPool(ctx *cli.Context) error {
+	err := startPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func startPool(ctx *cli.Context) error {

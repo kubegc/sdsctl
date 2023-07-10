@@ -13,7 +13,7 @@ func NewStopPoolCommand() *cli.Command {
 		Name:      "stop-pool",
 		Usage:     "stop kvm pool for kubestack",
 		UsageText: "sdsctl [global options] stop-pool [options]",
-		Action:    stopPool,
+		Action:    backstopPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "pool",
@@ -26,6 +26,15 @@ func NewStopPoolCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backstopPool(ctx *cli.Context) error {
+	err := stopPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func stopPool(ctx *cli.Context) error {

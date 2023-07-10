@@ -17,7 +17,7 @@ func NewRevertExternalSnapshotCommand() *cli.Command {
 		Name:      "revert-external-snapshot",
 		Usage:     "revert kvm snapshot for kubestack",
 		UsageText: "sdsctl [global options] revert-external-snapshot [options]",
-		Action:    revertExternalSnapshot,
+		Action:    backrevertExternalSnapshot,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -46,6 +46,15 @@ func NewRevertExternalSnapshotCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backrevertExternalSnapshot(ctx *cli.Context) error {
+	err := revertExternalSnapshot(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDSNS_Kinds)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func revertBackup(path string) {

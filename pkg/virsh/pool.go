@@ -57,7 +57,15 @@ func DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath string) 
 	poolXML := libvirtxml.StoragePool{
 		Type: ptype,
 		Name: name,
-		Source: &libvirtxml.StoragePoolSource{
+		//Source:
+		Target: &libvirtxml.StoragePoolTarget{
+			Path: target,
+		},
+	}
+	// fix
+	if sourceName != "" {
+		poolXML.Source = &libvirtxml.StoragePoolSource{
+			Name: sourceName,
 			Dir: &libvirtxml.StoragePoolSourceDir{
 				Path: sourcePath,
 			},
@@ -66,12 +74,8 @@ func DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath string) 
 					Name: sourceHost,
 				},
 			},
-			Name: sourceName,
 			//Auth: &libvirtxml.StoragePoolSourceAuth{},
-		},
-		Target: &libvirtxml.StoragePoolTarget{
-			Path: target,
-		},
+		}
 	}
 	if ptype == constant.PoolRbdType {
 		secret, err := GetOrCreateCephTypeSecret("client.admin")

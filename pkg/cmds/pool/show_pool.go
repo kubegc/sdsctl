@@ -14,7 +14,7 @@ func NewShowPoolCommand() *cli.Command {
 		Name:      "show-pool",
 		Usage:     "show kvm pool for kubestack",
 		UsageText: "sdsctl [global options] show-pool [options]",
-		Action:    showPool,
+		Action:    backshowPool,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -25,13 +25,22 @@ func NewShowPoolCommand() *cli.Command {
 				Name:  "pool",
 				Usage: "storage pool type",
 			},
-			&cli.StringFlag{
-				Name:  "auto-start",
-				Usage: "if auto-start pool",
-				Value: "true",
-			},
+			//&cli.StringFlag{
+			//	Name:  "auto-start",
+			//	Usage: "if auto-start pool",
+			//	Value: "true",
+			//},
 		},
 	}
+}
+
+func backshowPool(ctx *cli.Context) error {
+	err := showPool(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func showPool(ctx *cli.Context) error {

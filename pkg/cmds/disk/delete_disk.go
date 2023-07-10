@@ -15,7 +15,7 @@ func NewDeleteDiskCommand() *cli.Command {
 		Name:      "delete-disk",
 		Usage:     "delete kvm disk for kubestack",
 		UsageText: "sdsctl [global options] delete-disk [options]",
-		Action:    deleteDisk,
+		Action:    backdeleteDisk,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -33,6 +33,15 @@ func NewDeleteDiskCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backdeleteDisk(ctx *cli.Context) error {
+	err := deleteDisk(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func deleteDisk(ctx *cli.Context) error {

@@ -16,7 +16,7 @@ func NewUploadDiskImageCommand() *cli.Command {
 		Name:      "upload-disk-image",
 		Usage:     "upload disk image for kubestack",
 		UsageText: "sdsctl [global options] upload-disk-image [options]",
-		Action:    uploadDiskImage,
+		Action:    backuploadDiskImage,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "type",
@@ -36,6 +36,15 @@ func NewUploadDiskImageCommand() *cli.Command {
 			},
 		},
 	}
+}
+
+func backuploadDiskImage(ctx *cli.Context) error {
+	err := uploadDiskImage(ctx)
+	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
+	if err != nil {
+		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
+	}
+	return err
 }
 
 func uploadDiskImage(ctx *cli.Context) error {

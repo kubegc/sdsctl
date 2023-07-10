@@ -253,6 +253,62 @@ func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value 
 	return nil
 }
 
+func (ks *KsGvr) UpdateWithStatus(ctx context.Context, namespace, name, key string, value interface{}, msg, reason string) error {
+	client, err := GetCRDClient()
+	if err != nil {
+		return err
+	}
+
+	// get old crd
+	utd, err := client.Resource(ks.gvr).Namespace(namespace).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return err
+	}
+
+	obj := &unstructured.Unstructured{}
+	obj.SetResourceVersion(utd.GetResourceVersion())
+
+	data, err := utd.MarshalJSON()
+	if err != nil {
+		return err
+	}
+	var kscrd KsCrd
+	err = json.Unmarshal(data, &kscrd)
+	if err != nil {
+		return err
+	}
+
+	// update spec
+	//fmt.Printf("before:%s\n", string(kscrd.Spec.Raw))
+	var bytes []byte
+	if value != nil {
+		bytes, err = sjson.SetBytes(kscrd.Spec.Raw, key, value)
+		if err != nil {
+			return err
+		}
+	}
+
+	// update status
+	bytes, err = AddPowerStatus(bytes, msg, reason)
+	if err != nil {
+		return err
+	}
+	kscrd.Spec.Raw = bytes
+	//fmt.Printf("after:%s\n", string(kscrd.Spec.Raw))
+	// docode for bytes
+	marshal, err := json.Marshal(kscrd)
+	decoder := yaml.NewDecodingSerializer(unstructured.UnstructuredJSONScheme)
+	if _, _, err = decoder.Decode(marshal, nil, obj); err != nil {
+		return err
+	}
+	// write back to k8s
+	_, err = client.Resource(ks.gvr).Namespace(namespace).Update(ctx, obj, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (ks *KsGvr) Delete(ctx context.Context, namespace string, name string) error {
 	client, err := GetCRDClient()
 	if err != nil {
