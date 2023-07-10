@@ -12,6 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func NewCreatePoolCommand() *cli.Command {
@@ -71,7 +72,10 @@ var poolTypeTrans = map[string]string{
 func backcreatePool(ctx *cli.Context) error {
 	err := createPool(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
-	if err != nil {
+	logger := utils.GetLogger()
+
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
+		logger.Errorf("err here2: %+v", err)
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
 	}
 	return err
@@ -134,11 +138,11 @@ func createPool(ctx *cli.Context) error {
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
-	logger.Infof("autostart:%+v", autoStart)
+	//logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		return err
 	}
-	logger.Infof("write content")
+	//logger.Infof("write content")
 	// write content file
 	contentPath := filepath.Join(ctx.String("url"), "content")
 	var content = []byte(ctx.String("content"))
@@ -163,6 +167,7 @@ func createPool(ctx *cli.Context) error {
 	}
 	flags = utils.MergeFlags(flags, extra)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, flags); err != nil {
+		logger.Errorf("err here: %+v", err)
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}

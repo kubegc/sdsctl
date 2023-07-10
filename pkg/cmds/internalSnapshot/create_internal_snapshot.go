@@ -7,6 +7,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"strings"
 )
 
 func NewCreateInternalSnapshotCommand() *cli.Command {
@@ -41,7 +42,7 @@ func backcreateInternalSnapshot(ctx *cli.Context) error {
 	err := createInternalSnapshot(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
 	updateKey := fmt.Sprintf("%s.snapshots", constant.CRD_Volume_Key)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), updateKey, nil, err.Error(), "400")
 	}
 	return err

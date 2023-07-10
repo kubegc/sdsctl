@@ -6,6 +6,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/rook"
 	"github.com/urfave/cli/v2"
+	"strings"
 )
 
 func NewCreateNFSPoolCommand() *cli.Command {
@@ -30,7 +31,7 @@ func NewCreateNFSPoolCommand() *cli.Command {
 func backcreateNFSPool(ctx *cli.Context) error {
 	err := createNFSPool(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, nil, err.Error(), "400")
 	}
 	return err

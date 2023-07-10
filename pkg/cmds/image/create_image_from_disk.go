@@ -6,6 +6,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"strings"
 )
 
 func NewCreateImageFromDiskCommand() *cli.Command {
@@ -43,7 +44,7 @@ func NewCreateImageFromDiskCommand() *cli.Command {
 func backcreateImageFromDisk(ctx *cli.Context) error {
 	err := createImageFromDisk(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
 	}
 	return err

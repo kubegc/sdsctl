@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 )
 
 func NewCreateDiskFromImageCommand() *cli.Command {
@@ -48,7 +49,7 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 func backcreateDiskFromImage(ctx *cli.Context) error {
 	err := createDiskFromImage(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "already exists") {
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
 	}
 	return err
