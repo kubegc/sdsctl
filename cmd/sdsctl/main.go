@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/kube-stack/sdsctl/pkg/cmds"
 	"github.com/kube-stack/sdsctl/pkg/cmds/disk"
 	"github.com/kube-stack/sdsctl/pkg/cmds/externalSnapshot"
@@ -60,7 +59,7 @@ func main() {
 	}
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Printf("error options: %s\n", err.Error())
-		os.Exit(-1)
+		//fmt.Printf("error options: %s\n", err.Error())
+		os.Exit(0)
 	}
 }

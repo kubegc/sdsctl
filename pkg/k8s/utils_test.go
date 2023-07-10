@@ -11,7 +11,7 @@ func TestGetVMHostName(t *testing.T) {
 }
 
 func TestGetIPByNodeName(t *testing.T) {
-	ip, err := GetIPByNodeName("vm.wanna")
+	ip, err := GetIPByNodeName("vm.node131")
 	fmt.Printf("err:%+v\n", err)
 	fmt.Printf("name:%+v\n", ip)
 }

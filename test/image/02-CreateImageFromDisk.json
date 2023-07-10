@@ -2,18 +2,18 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDiskImage",
   "metadata": {
-    "name": "disktest111-image2",
+    "name": "diskhub111-image2",
     "labels": {
-      "host": "vm.wanna"
+      "host": "vm.node131"
     }
   },
   "spec": {
-    "nodeName": "vm.wanna",
+    "nodeName": "vm.node131",
     "lifecycle": {
       "createDiskImageFromDisk": {
         "type": "localfs",
-        "pool": "pooltest111",
-        "targetpool": "pooltest111-image",
+        "pool": "poolhub111",
+        "targetpool": "poolhub111-image",
         "vol": "disktest333"
       }
     }

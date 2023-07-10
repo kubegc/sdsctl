@@ -134,8 +134,10 @@ func createPool(ctx *cli.Context) error {
 		}
 	}
 	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
-		logger.Errorf("CreatePool err:%+v", err)
+	if err != nil {
+		if strings.Contains(err.Error(), "already exists") {
+			return nil
+		}
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}

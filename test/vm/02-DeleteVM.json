@@ -4,11 +4,11 @@
   "metadata": {
     "name": "test111",
     "labels": {
-      "host": "vm.wanna"
+      "host": "vm.node131"
     }
   },
   "spec": {
-    "nodeName": "vm.wanna",
+    "nodeName": "vm.node131",
     "lifecycle": {
       "deleteVM": {
       }

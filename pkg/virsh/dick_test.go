@@ -27,7 +27,7 @@ func TestDeleteDisk(t *testing.T) {
 }
 
 func TestResizeDisk(t *testing.T) {
-	err := ResizeDisk("pooltest111", "disktest111", "3G")
+	err := ResizeDisk("poolhub111", "diskhub111", "3G")
 	fmt.Printf("err: %+v\n", err)
 }
 

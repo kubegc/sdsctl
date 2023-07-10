@@ -4,16 +4,16 @@
   "metadata": {
     "name": "image-download2",
     "labels": {
-      "host": "vm.wanna"
+      "host": "vm.node131"
     }
   },
   "spec": {
-    "nodeName": "vm.wanna",
+    "nodeName": "vm.node131",
     "lifecycle": {
       "downloadDiskImage": {
         "type": "cephrgw",
-        "pool": "pooltest111-image",
-        "source-path": "/wanna/disktest111-image2"
+        "pool": "poolhub111-image",
+        "source-path": "/wanna/diskhub111-image2"
       }
     }
   }

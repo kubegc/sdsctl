@@ -69,6 +69,6 @@ func TestStopPool2(t *testing.T) {
 }
 
 func TestCheckVMDiskSpec(t *testing.T) {
-	poolType := CheckPoolType("pooltest111-image", "vmdi")
+	poolType := CheckPoolType("poolhub111-image", "vmdi")
 	fmt.Println(poolType)
 }

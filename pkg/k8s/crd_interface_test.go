@@ -48,7 +48,7 @@ func TestKsGvr_Update(t *testing.T) {
 			"key3": "value3",
 		},
 	}
-	err := ksgvr.Update(context.TODO(), "default", "pooltest111", "pool.extra", data)
+	err := ksgvr.Update(context.TODO(), "default", "poolhub111", "pool.extra", data)
 	fmt.Printf("err: %+v\n", err)
 }
 
@@ -63,7 +63,7 @@ func TestKsGvr_Update2(t *testing.T) {
 
 func TestKsGvr_Delete(t *testing.T) {
 	ksgvr := NewKsGvr(constant.VMPS_Kind)
-	err := ksgvr.Delete(context.TODO(), "default", "pooltest111")
+	err := ksgvr.Delete(context.TODO(), "default", "poolhub111")
 	fmt.Printf("err: %+v\n", err)
 }
 

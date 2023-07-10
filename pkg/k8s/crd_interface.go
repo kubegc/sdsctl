@@ -31,6 +31,12 @@ type KsCrd struct {
 	Status            runtime.RawExtension `json:"status,omitempty"`
 }
 
+type KsCrdWithoutStatus struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+	Spec              runtime.RawExtension `json:"spec,omitempty"`
+}
+
 type KsCrdList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
@@ -220,7 +226,7 @@ func (ks *KsGvr) Update(ctx context.Context, namespace, name, key string, value 
 	if err != nil {
 		return err
 	}
-	var kscrd KsCrd
+	var kscrd KsCrdWithoutStatus
 	err = json.Unmarshal(data, &kscrd)
 	if err != nil {
 		return err
@@ -272,7 +278,7 @@ func (ks *KsGvr) UpdateWithStatus(ctx context.Context, namespace, name, key stri
 	if err != nil {
 		return err
 	}
-	var kscrd KsCrd
+	var kscrd KsCrdWithoutStatus
 	err = json.Unmarshal(data, &kscrd)
 	if err != nil {
 		return err
@@ -293,7 +299,9 @@ func (ks *KsGvr) UpdateWithStatus(ctx context.Context, namespace, name, key stri
 	if err != nil {
 		return err
 	}
+
 	kscrd.Spec.Raw = bytes
+	//kscrd.Status.Raw = []byte{}
 	//fmt.Printf("after:%s\n", string(kscrd.Spec.Raw))
 	// docode for bytes
 	marshal, err := json.Marshal(kscrd)

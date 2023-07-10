@@ -47,7 +47,9 @@ func NewCreateDiskCommand() *cli.Command {
 func backcreateDisk(ctx *cli.Context) error {
 	err := createDisk(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
+	//logger := utils.GetLogger()
+	if err != nil && !strings.Contains(err.Error(), "already exist") {
+		//logger.Errorf("err here1:%+v", err)
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
 	}
 	return err

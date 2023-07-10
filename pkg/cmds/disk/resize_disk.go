@@ -8,6 +8,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/kube-stack/sdsctl/pkg/virsh"
 	"github.com/urfave/cli/v2"
+	"strings"
 )
 
 func NewResizeDiskCommand() *cli.Command {
@@ -42,7 +43,7 @@ func NewResizeDiskCommand() *cli.Command {
 func backresizeDisk(ctx *cli.Context) error {
 	err := resizeDisk(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDS_Kind)
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "no change") {
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("vol"), constant.CRD_Volume_Key, nil, err.Error(), "400")
 	}
 	return err

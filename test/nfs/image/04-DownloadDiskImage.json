@@ -4,16 +4,16 @@
   "metadata": {
     "name": "image-download",
     "labels": {
-      "host": "vm.wanna"
+      "host": "vm.node131"
     }
   },
   "spec": {
-    "nodeName": "vm.wanna",
+    "nodeName": "vm.node131",
     "lifecycle": {
       "downloadDiskImage": {
         "type": "nfs",
-        "pool": "pooltest111-image",
-        "source-path": "/var/lib/libvirt/share/disktest111-image"
+        "pool": "poolhub111-image",
+        "source-path": "/var/lib/libvirt/share/diskhub111-image"
       }
     }
   }

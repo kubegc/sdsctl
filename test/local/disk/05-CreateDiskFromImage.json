@@ -4,16 +4,16 @@
   "metadata": {
     "name": "disktest555",
     "labels": {
-      "host": "vm.wanna"
+      "host": "vm.node131"
     }
   },
   "spec": {
-    "nodeName": "vm.wanna",
+    "nodeName": "vm.node131",
     "lifecycle": {
       "createDiskFromDiskImage": {
         "type": "localfs",
-        "pool": "pooltest111",
-        "source": "/var/lib/libvirt/pooltest111-image/disktest111-image/disktest111-image",
+        "pool": "poolhub111",
+        "source": "/var/lib/libvirt/poolhub111-image/diskhub111-image/diskhub111-image",
         "full-copy": "true"
       }
     }
