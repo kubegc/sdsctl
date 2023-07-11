@@ -14,7 +14,7 @@
         "type": "dir",
         "url": "/var/lib/libvirt/poolhub111-image",
         "content": "vmdi",
-        "auto-start": "true"
+        "auto-start": true
       }
     }
   }

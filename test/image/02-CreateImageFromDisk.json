@@ -13,8 +13,8 @@
       "createDiskImageFromDisk": {
         "type": "localfs",
         "pool": "poolhub111",
-        "targetpool": "poolhub111-image",
-        "vol": "disktest333"
+        "target-pool": "poolhub111-image",
+        "vol": "diskhub111"
       }
     }
   }

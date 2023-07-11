@@ -13,7 +13,7 @@
       "autoStartPool": {
         "type": "cephrbd",
         "pool": "cephrbdpool",
-        "auto-start": "true"
+        "auto-start": true
       }
     }
   }

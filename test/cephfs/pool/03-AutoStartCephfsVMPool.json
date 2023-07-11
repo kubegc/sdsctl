@@ -13,7 +13,7 @@
       "autoStartPool": {
         "type": "cephfs",
         "pool": "cephfspool",
-        "auto-start": "true"
+        "auto-start": true
       }
     }
   }

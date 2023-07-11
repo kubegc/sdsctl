@@ -43,7 +43,7 @@ func NewCreateDiskImageCommand() *cli.Command {
 func backcreateDiskImage(ctx *cli.Context) error {
 	err := createDiskImage(ctx)
 	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
-	if err != nil && !strings.Contains(err.Error(), "already exists") {
+	if err != nil && !strings.Contains(err.Error(), "already exist") {
 		ksgvr.UpdateWithStatus(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, nil, err.Error(), "400")
 	}
 	return err
@@ -95,9 +95,9 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	res["pool"] = pool
 	res["format"] = "qcow2"
 	res["type"] = ctx.String("type")
-	if err := ksgvr.Create(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
 		createImageBack(targetImageDir)
-		logger.Errorf("ksgvr.Create err:%+v", err)
+		logger.Errorf("ksgvr.Update err:%+v", err)
 		return err
 	}
 	return nil
