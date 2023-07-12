@@ -93,10 +93,13 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	//vol := ctx.String("source")
 	ksgvr := k8s.NewKsGvr(constant.VMDSNS_Kinds)
 	if _, ok := files[config["current"]]; ok {
-		vmActive, err := virsh.IsVMActive(domain)
-		if err != nil {
-			logger.Errorf("IsVMActive err:%+v", err)
-			return err
+		vmActive := false
+		if domain != "" {
+			vmActive, err = virsh.IsVMActive(domain)
+			if err != nil {
+				logger.Errorf("IsVMActive err:%+v", err)
+				return err
+			}
 		}
 		// todo check?
 		if domain != "" && vmActive {
@@ -138,6 +141,7 @@ func deleteExternalSnapshot(ctx *cli.Context) error {
 	// delete files
 	for k, _ := range files {
 		//fullPath := filepath.Join(config["dir"], "snapshots", k)
+		logger.Infof("delete file:%+v", k)
 		os.Remove(k)
 	}
 

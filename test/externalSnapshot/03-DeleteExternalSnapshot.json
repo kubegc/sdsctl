@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDiskSnapshot",
   "metadata": {
-    "name": "diskhub111-snapshot",
+    "name": "e484448e74c74a0e",
     "labels": {
       "host": "vm.node131"
     }
@@ -13,8 +13,8 @@
       "deleteDiskExternalSnapshot": {
         "type": "localfs",
         "pool": "poolhub111",
-        "source": "d95e3f560e11403c",
-        "domain": "test111"
+        "source": "diskhub111",
+        "domain": "test123"
       }
     }
   }

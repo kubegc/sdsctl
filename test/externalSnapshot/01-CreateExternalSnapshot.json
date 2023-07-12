@@ -16,7 +16,7 @@
         "source": "diskhub111",
         "name": "diskhub111-snapshot",
         "format": "qcow2",
-        "domain": "test111"
+        "domain": "test123"
       }
     }
   }

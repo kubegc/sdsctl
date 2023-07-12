@@ -10,6 +10,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func NewRevertExternalSnapshotCommand() *cli.Command {
@@ -106,6 +107,9 @@ func revertExternalSnapshot(ctx *cli.Context) error {
 
 	newFile := utils.GetUUID()
 	newFilePath := filepath.Join(utils.GetDir(backFile), newFile)
+	if !strings.Contains(newFilePath, "snapshots") {
+		newFilePath = filepath.Join(utils.GetDir(backFile), "snapshots", newFile)
+	}
 	if err := virsh.CreateDiskWithBacking(ctx.String("format"), backFile, ctx.String("format"), newFilePath); err != nil {
 		logger.Errorf("CreateDiskWithBacking err:%+v", err)
 		return err

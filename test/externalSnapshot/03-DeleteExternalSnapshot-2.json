@@ -10,12 +10,10 @@
   "spec": {
     "nodeName": "vm.node131",
     "lifecycle": {
-      "createDiskExternalSnapshot": {
+      "deleteDiskExternalSnapshot": {
         "type": "localfs",
         "pool": "poolhub111",
-        "source": "diskhub111",
-        "name": "diskhub111-snapshot2",
-        "format": "qcow2"
+        "source": "diskhub111"
       }
     }
   }

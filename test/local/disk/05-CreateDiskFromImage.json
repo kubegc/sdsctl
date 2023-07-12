@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDisk",
   "metadata": {
-    "name": "disktest555",
+    "name": "diskhub111-fromimage",
     "labels": {
       "host": "vm.node131"
     }

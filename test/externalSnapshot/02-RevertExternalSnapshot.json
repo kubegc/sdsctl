@@ -15,7 +15,7 @@
         "pool": "poolhub111",
         "source": "diskhub111",
         "format": "qcow2",
-        "domain": "test111"
+        "domain": "test123"
       }
     }
   }
