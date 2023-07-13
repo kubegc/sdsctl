@@ -10,7 +10,6 @@ import (
 	"github.com/urfave/cli/v2"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -27,7 +26,7 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 				Value: "dir",
 			},
 			&cli.StringFlag{
-				Name:  "pool",
+				Name:  "targetPool",
 				Usage: "storage pool name",
 			},
 			&cli.StringFlag{
@@ -38,8 +37,8 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 				Name:  "source",
 				Usage: "source storage vol path",
 			},
-			&cli.StringFlag{
-				Name:  "full-copy",
+			&cli.BoolFlag{
+				Name:  "full_copy",
 				Usage: "if full-copy, new disk will be created by snapshot",
 			},
 		},
@@ -57,12 +56,12 @@ func backcreateDiskFromImage(ctx *cli.Context) error {
 
 func createDiskFromImage(ctx *cli.Context) error {
 	logger := utils.GetLogger()
-	pool := ctx.String("pool")
-	parseBool, err := strconv.ParseBool(ctx.String("full-copy"))
-	if err != nil {
-		logger.Errorf("ParseBool full-copy err:%+v", err)
-		return err
-	}
+	pool := ctx.String("targetPool")
+	parseBool := ctx.Bool("full_copy")
+	//if err != nil {
+	//	logger.Errorf("ParseBool full-copy err:%+v", err)
+	//	return err
+	//}
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
 		logger.Errorf("IsPoolActive err:%+v", err)

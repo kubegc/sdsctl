@@ -14,7 +14,7 @@
         "type": "localfs",
         "pool": "poolhub111",
         "source": "/var/lib/libvirt/poolhub111-image/diskhub111-image/diskhub111-image",
-        "full-copy": "true"
+        "full-copy": true
       }
     }
   }
