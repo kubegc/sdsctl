@@ -38,7 +38,7 @@ func NewCreateDiskFromImageCommand() *cli.Command {
 				Usage: "source storage vol path",
 			},
 			&cli.BoolFlag{
-				Name:  "full_copy",
+				Name:  "full-copy",
 				Usage: "if full-copy, new disk will be created by snapshot",
 			},
 		},
@@ -57,7 +57,7 @@ func backcreateDiskFromImage(ctx *cli.Context) error {
 func createDiskFromImage(ctx *cli.Context) error {
 	logger := utils.GetLogger()
 	pool := ctx.String("targetPool")
-	parseBool := ctx.Bool("full_copy")
+	parseBool := ctx.Bool("full-copy")
 	//if err != nil {
 	//	logger.Errorf("ParseBool full-copy err:%+v", err)
 	//	return err
