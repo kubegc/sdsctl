@@ -12,7 +12,7 @@
     "lifecycle": {
       "deleteDiskImage": {
         "type": "localfs",
-        "source-pool": "poolhub111-image"
+        "sourcePool": "poolhub111-image"
       }
     }
   }

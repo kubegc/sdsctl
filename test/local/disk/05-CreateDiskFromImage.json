@@ -12,7 +12,7 @@
     "lifecycle": {
       "createDiskFromDiskImage": {
         "type": "localfs",
-        "pool": "poolhub111",
+        "targetPool": "poolhub111",
         "source": "/var/lib/libvirt/poolhub111-image/diskhub111-image/diskhub111-image",
         "full-copy": true
       }
