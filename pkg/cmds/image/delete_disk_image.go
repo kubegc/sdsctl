@@ -23,7 +23,7 @@ func NewDeleteDiskImageCommand() *cli.Command {
 				Value: "dir",
 			},
 			&cli.StringFlag{
-				Name:  "pool",
+				Name:  "source-pool",
 				Usage: "vmdi storage pool name",
 			},
 			&cli.StringFlag{
@@ -45,7 +45,7 @@ func backdeleteDiskImage(ctx *cli.Context) error {
 
 func deleteDiskImage(ctx *cli.Context) error {
 	logger := utils.GetLogger()
-	pool := ctx.String("pool")
+	pool := ctx.String("source-pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
 		return err

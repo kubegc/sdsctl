@@ -4,6 +4,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/rook"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -33,13 +34,15 @@ func backdeleteRgwPool(ctx *cli.Context) error {
 
 func deleteRgwPool(ctx *cli.Context) error {
 	name := ctx.String("name")
+	logger := utils.GetLogger()
 	// delete storageclass & obc
 	if err := rook.DeleteOBC(constant.DefaultCephRwgName); err != nil {
 		return err
 	}
-	if err := rook.DeleteBucketStorageClass(); err != nil {
-		return err
-	}
+	//if err := rook.DeleteBucketStorageClass(); err != nil {
+	//	return err
+	//}
+	logger.Info("delete bucket storageclass")
 
 	// delete vmp
 	ksgvr2 := k8s.NewKsGvr(constant.VMPS_Kind)

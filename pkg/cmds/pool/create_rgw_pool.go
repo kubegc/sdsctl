@@ -5,6 +5,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/constant"
 	"github.com/kube-stack/sdsctl/pkg/k8s"
 	"github.com/kube-stack/sdsctl/pkg/rook"
+	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/urfave/cli/v2"
 	"strings"
 )
@@ -34,12 +35,13 @@ func backcreateRgwPool(ctx *cli.Context) error {
 }
 
 func createRgwPool(ctx *cli.Context) error {
+	logger := utils.GetLogger()
 	name := ctx.String("name")
 	// create storageclass & obc
-	if err := rook.CreateBucketStorageClass(); err != nil {
+	if err := rook.CreateBucketStorageClass(); err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
-	if err := rook.CreateOBC(constant.DefaultCephRwgName); err != nil {
+	if err := rook.CreateOBC(constant.DefaultCephRwgName); err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
 
@@ -52,6 +54,7 @@ func createRgwPool(ctx *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	logger.Infof("bucket secret: %+v", secret)
 	ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 	flags := map[string]string{
 		"pool":       name,

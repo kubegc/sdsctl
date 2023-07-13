@@ -22,11 +22,11 @@ func NewCreateImageFromDiskCommand() *cli.Command {
 				Value: "dir",
 			},
 			&cli.StringFlag{
-				Name:  "pool",
+				Name:  "source-pool",
 				Usage: "storage pool name",
 			},
 			&cli.StringFlag{
-				Name:  "vol",
+				Name:  "source-volume",
 				Usage: "source storage disk file path",
 			},
 			&cli.StringFlag{
@@ -52,7 +52,7 @@ func backcreateImageFromDisk(ctx *cli.Context) error {
 
 func createImageFromDisk(ctx *cli.Context) error {
 	//logger := utils.GetLogger()
-	pool := ctx.String("pool")
+	pool := ctx.String("source-pool")
 	targetPool := ctx.String("target-pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
@@ -70,10 +70,11 @@ func createImageFromDisk(ctx *cli.Context) error {
 	if !virsh.CheckPoolType(targetPool, "vmdi") {
 		return fmt.Errorf("pool type error")
 	}
-	if !virsh.IsDiskExist(pool, ctx.String("vol")) {
-		return fmt.Errorf("storage vol %s not exist", ctx.String("vol"))
+	vol := ctx.String("source-volume")
+	if !virsh.IsDiskExist(pool, vol) {
+		return fmt.Errorf("storage vol %s not exist", vol)
 	}
-	sourceDiskdir, _ := virsh.ParseDiskDir(pool, ctx.String("vol"))
+	sourceDiskdir, _ := virsh.ParseDiskDir(pool, vol)
 	config, _ := virsh.ParseConfig(sourceDiskdir)
 	return createImage(ctx, config["current"], ctx.String("name"), targetPool)
 }

@@ -25,7 +25,7 @@ func NewCreateDiskImageCommand() *cli.Command {
 				Value: "dir",
 			},
 			&cli.StringFlag{
-				Name:  "pool",
+				Name:  "target-pool",
 				Usage: "vmdi storage pool name",
 			},
 			&cli.StringFlag{
@@ -105,7 +105,7 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 
 func createDiskImage(ctx *cli.Context) error {
 	//logger := utils.GetLogger()
-	pool := ctx.String("pool")
+	pool := ctx.String("target-pool")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
 		return err

@@ -13,7 +13,7 @@
       "createDiskInternalSnapshot": {
         "type": "localfs",
         "domain": "test111",
-        "snapshot": "test-snapshot3.qcow2"
+        "snapshot": "internal-snapshot1.qcow2"
       }
     }
   }

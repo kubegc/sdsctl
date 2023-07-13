@@ -12,9 +12,9 @@
     "lifecycle": {
       "createDiskImageFromDisk": {
         "type": "localfs",
-        "pool": "poolhub111",
+        "source-pool": "poolhub111",
         "target-pool": "poolhub111-image",
-        "vol": "diskhub111"
+        "source-volume": "diskhub111"
       }
     }
   }

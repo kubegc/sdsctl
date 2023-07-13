@@ -12,7 +12,7 @@
     "lifecycle": {
       "createDiskImage": {
         "type": "localfs",
-        "pool": "poolhub111-image",
+        "target-pool": "poolhub111-image",
         "source": "/var/lib/libvirt/poolhub111/diskhub111/diskhub111"
       }
     }

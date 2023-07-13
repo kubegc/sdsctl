@@ -2,7 +2,7 @@
   "apiVersion": "doslab.io/v1",
   "kind": "VirtualMachineDiskImage",
   "metadata": {
-    "name": "diskhub111-image2",
+    "name": "diskhub111-image",
     "labels": {
       "host": "vm.node131"
     }
@@ -12,7 +12,7 @@
     "lifecycle": {
       "deleteDiskImage": {
         "type": "localfs",
-        "pool": "poolhub111-image"
+        "source-pool": "poolhub111-image"
       }
     }
   }
