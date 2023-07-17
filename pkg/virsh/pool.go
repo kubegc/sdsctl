@@ -78,6 +78,7 @@ func DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath string) 
 		}
 	}
 	if ptype == constant.PoolRbdType {
+		poolXML.Source.Auth = &libvirtxml.StoragePoolSourceAuth{}
 		secret, err := GetOrCreateCephTypeSecret("client.admin")
 		if err != nil {
 			return nil, err

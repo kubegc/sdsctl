@@ -127,7 +127,7 @@ func createPool(ctx *cli.Context) error {
 		}
 	} else if ptype == constant.PoolCephRbdType {
 		// create rook ceph rbd pool
-		if err := rook.CreateRbdPool(sourceName); err != nil {
+		if err := rook.CreateRbdPool(sourceName); err != nil && !strings.Contains(err.Error(), "already exist") {
 			return err
 		}
 		if err := rook.WaitRbdPoolReady(sourceName); err != nil {

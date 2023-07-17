@@ -49,6 +49,7 @@ func createNFSPool(ctx *cli.Context) error {
 		return err
 	}
 	nfsPath := name
+	logger.Infof("create here11111")
 	if err := rook.ExportNFSPath(constant.DefaultNFSClusterName, nfsPath); err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
