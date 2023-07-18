@@ -76,6 +76,11 @@ func createDiskFromImage(ctx *cli.Context) error {
 
 	// source
 	image, _ := virsh.OpenImage(ctx.String("source"))
+	// fix: iso not support
+	if image.Format != "qcow2" {
+		return errors.New(fmt.Sprintf("the volume %+v is not qcow2 format", ctx.String("source")))
+	}
+
 	sourceFormat := image.Format
 
 	// target

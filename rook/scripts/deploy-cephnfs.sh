@@ -46,7 +46,9 @@ do
 done
 
 # create dir /volumes/share
+#ceph fs subvolumegroup rm myfs share
 ceph fs subvolumegroup create myfs share
+#ceph nfs export rm my-nfs /nfspool
 ceph nfs export create cephfs my-nfs /share myfs /volumes/share
 
 # create dir

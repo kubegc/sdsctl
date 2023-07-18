@@ -32,7 +32,7 @@ func WaitNFSPoolReady(poolName string) error {
 		}
 		parse := gjson.ParseBytes(rbdPool.Status.Raw)
 		status := parse.Get("phase")
-		if status.Str == "Ready" {
+		if status.Str == "Ready" || status.Str == "Progressing" {
 			return nil
 		}
 		time.Sleep(500 * time.Millisecond)

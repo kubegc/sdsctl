@@ -7,6 +7,7 @@ import (
 	"github.com/kube-stack/sdsctl/pkg/rook"
 	"github.com/kube-stack/sdsctl/pkg/utils"
 	"github.com/urfave/cli/v2"
+	"os"
 	"strings"
 )
 
@@ -44,12 +45,13 @@ func createNFSPool(ctx *cli.Context) error {
 	//if err := rook.CreateNfsPool(name); err != nil {
 	//	return err
 	//}
-	logger.Infof("create here111")
+	//logger.Infof("create here111")
 	if err := rook.WaitNFSPoolReady(constant.DefaultNFSClusterName); err != nil {
+		//logger.Infof("er: %+v", err)
 		return err
 	}
 	nfsPath := name
-	logger.Infof("create here11111")
+	//logger.Infof("create here11111")
 	if err := rook.ExportNFSPath(constant.DefaultNFSClusterName, nfsPath); err != nil && !strings.Contains(err.Error(), "already exists") {
 		return err
 	}
@@ -58,10 +60,15 @@ func createNFSPool(ctx *cli.Context) error {
 	if len(ip) == 0 {
 		return fmt.Errorf("fail to get nfs server ip")
 	}
+	logger.Infof("create here333")
+	if !utils.Exists(ctx.String("local-path")) {
+		os.MkdirAll(ctx.String("local-path"), os.ModePerm)
+	}
 	if err := rook.MountNfs(ip, nfsPath, ctx.String("local-path")); err != nil {
+		//logger.Infof("er: %+v", err)
 		return err
 	}
-	logger.Infof("create here333")
+	//logger.Infof("create here444")
 	//ksgvr := k8s.NewExternalGvr(constant.DefaultRookGroup, constant.DefaultRookVersion, constant.CephNFSPoolS_Kinds)
 	capacity, err := rook.QueryNfsCapacity(ctx.String("local-path"))
 	if err != nil {
