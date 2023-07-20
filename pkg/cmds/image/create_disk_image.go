@@ -25,6 +25,10 @@ func NewCreateDiskImageCommand() *cli.Command {
 				Value: "dir",
 			},
 			&cli.StringFlag{
+				Name:  "imageType",
+				Usage: "qcow2 or iso",
+			},
+			&cli.StringFlag{
 				Name:  "targetPool",
 				Usage: "vmdi storage pool name",
 			},
@@ -103,9 +107,50 @@ func createImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
 	return nil
 }
 
+func createIsoImage(ctx *cli.Context, sourceDiskPath, name, pool string) error {
+	logger := utils.GetLogger()
+	targetImageDir, _ := virsh.ParseDiskDir(pool, name)
+	if !utils.Exists(targetImageDir) {
+		os.MkdirAll(targetImageDir, os.ModePerm)
+	}
+	targetImagePath := filepath.Join(targetImageDir, name+".iso")
+	// cp source
+	if err := utils.CopyFile(sourceDiskPath, targetImagePath); err != nil {
+		return err
+	}
+	// write config
+	cfg := map[string]string{
+		"name":    name,
+		"dir":     targetImageDir,
+		"current": targetImagePath,
+		"pool":    pool,
+	}
+
+	if err := virsh.CreateConfig(targetImageDir, cfg); err != nil {
+		createImageBack(targetImageDir)
+		logger.Errorf("CreateConfig err:%+v", err)
+		return err
+	}
+
+	// create vmdi
+	ksgvr := k8s.NewKsGvr(constant.VMDIS_KINDS)
+	res := make(map[string]string)
+	res["current"] = targetImagePath
+	res["pool"] = pool
+	res["format"] = "iso"
+	res["type"] = ctx.String("type")
+	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
+		createImageBack(targetImageDir)
+		logger.Errorf("ksgvr.Update err:%+v", err)
+		return err
+	}
+	return nil
+}
+
 func createDiskImage(ctx *cli.Context) error {
 	//logger := utils.GetLogger()
 	pool := ctx.String("targetPool")
+	imageType := ctx.String("imageType")
 	active, err := virsh.IsPoolActive(pool)
 	if err != nil {
 		return err
@@ -115,5 +160,17 @@ func createDiskImage(ctx *cli.Context) error {
 	if !virsh.CheckPoolType(pool, "vmdi") {
 		return fmt.Errorf("pool type error")
 	}
-	return createImage(ctx, ctx.String("source"), ctx.String("name"), pool)
+
+	source := ctx.String("source")
+	if !utils.Exists(source) {
+		return fmt.Errorf("disk file not exist")
+	}
+	// source
+	image, _ := virsh.OpenImage(ctx.String("source"))
+	// fix: iso support
+	if imageType == "iso" && image.Format != "qcow2" && strings.Contains(source, "iso") {
+		return createIsoImage(ctx, source, ctx.String("name"), pool)
+	}
+	// qcow2 support
+	return createImage(ctx, source, ctx.String("name"), pool)
 }
