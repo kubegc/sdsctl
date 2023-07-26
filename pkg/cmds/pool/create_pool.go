@@ -134,7 +134,6 @@ func createPool(ctx *cli.Context) error {
 			return err
 		}
 	}
-	fmt.Println(111)
 	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
 	if err != nil {
 		fmt.Println(err)
@@ -144,7 +143,6 @@ func createPool(ctx *cli.Context) error {
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
-	fmt.Println(222)
 	//logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		return err
@@ -173,7 +171,6 @@ func createPool(ctx *cli.Context) error {
 		"sourcePath": sourcePath,
 	}
 	flags = utils.MergeFlags(flags, extra)
-	fmt.Println(333)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, flags); err != nil {
 		logger.Errorf("err: %+v", err)
 		return err
