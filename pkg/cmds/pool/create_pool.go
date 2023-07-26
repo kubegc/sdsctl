@@ -173,8 +173,9 @@ func createPool(ctx *cli.Context) error {
 		"sourcePath": sourcePath,
 	}
 	flags = utils.MergeFlags(flags, extra)
+	fmt.Println(333)
 	if err := ksgvr.Update(ctx.Context, constant.DefaultNamespace, ctx.String("pool"), constant.CRD_Pool_Key, flags); err != nil {
-		//logger.Errorf("err here: %+v", err)
+		logger.Errorf("err: %+v", err)
 		return err
 	}
 	return nil
