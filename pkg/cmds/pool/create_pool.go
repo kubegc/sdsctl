@@ -134,17 +134,15 @@ func createPool(ctx *cli.Context) error {
 			return err
 		}
 	}
-	fmt.Println("111")
 	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
 		if strings.Contains(err.Error(), "already exists") {
 			return nil
 		}
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
-	fmt.Println("222")
 	//logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		return err
