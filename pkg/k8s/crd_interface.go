@@ -77,7 +77,7 @@ func GetCRDClient() (dynamic.Interface, error) {
 }
 
 func NewCRDClient() (dynamic.Interface, error) {
-	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config1")
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, err
@@ -87,7 +87,7 @@ func NewCRDClient() (dynamic.Interface, error) {
 }
 
 func NewClient() (*kubernetes.Clientset, error) {
-	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config1")
+	kubeconfig := filepath.Join(os.Getenv("HOME"), ".kube", "config")
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
 		return nil, err
