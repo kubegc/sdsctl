@@ -116,6 +116,8 @@ func cloneDisk(ctx *cli.Context) error {
 		"dir":     targetDiskDir,
 		"current": targetDiskPath,
 		"pool":    pool,
+		// fix add vm
+		"vm": "",
 	}
 	if err = virsh.CreateConfig(middleDir, cfg); err != nil {
 		logger.Errorf("CreateConfig err:%+v", err)

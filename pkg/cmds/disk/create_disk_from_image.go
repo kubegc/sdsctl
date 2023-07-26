@@ -110,6 +110,8 @@ func createDiskFromImage(ctx *cli.Context) error {
 		"dir":     targetDiskDir,
 		"current": targetDiskPath,
 		"pool":    pool,
+		// fix add vm
+		"vm": "",
 	}
 	if err = virsh.CreateConfig(targetDiskDir, cfg); err != nil {
 		logger.Errorf("virsh.CreateConfig err:%+v", err)

@@ -154,6 +154,8 @@ func createExternalSnapshot(ctx *cli.Context) error {
 	res["current"] = targetSSPath
 	res["format"] = ctx.String("format")
 	res["domain"] = ctx.String("domain")
+	// fix add vm
+	res["vm"] = ctx.String("domain")
 	// todo ?
 	res["full_backing_filename"] = config["current"]
 	if err = ksgvr2.Update(ctx.Context, constant.DefaultNamespace, ctx.String("name"), constant.CRD_Volume_Key, res); err != nil {
