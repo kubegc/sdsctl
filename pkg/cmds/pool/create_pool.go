@@ -109,6 +109,7 @@ func createPool(ctx *cli.Context) error {
 			return err
 		}
 		scmd := fmt.Sprintf("mount -t ceph -o mds_namespace=%s,name=%s,secret=%s %s:%s %s", constant.DefaultMdsNamespace, constant.DefaultName, secret, sourceHost, sourcePath, ctx.String("url"))
+		fmt.Println(scmd)
 		comm := utils.Command{Cmd: scmd}
 		if _, err := comm.Execute(); err != nil {
 			return err
