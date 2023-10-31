@@ -100,6 +100,7 @@ func createPool(ctx *cli.Context) error {
 	if !utils.Exists(ctx.String("url")) {
 		utils.CreateDir(ctx.String("url"))
 	}
+	fmt.Println("111")
 	sourceHost, sourceName, sourcePath := ctx.String("source-host"), ctx.String("source-name"), ctx.String("source-path")
 	if ptype == constant.PoolCephfsType {
 		secret, err := rook.GetSecret()
@@ -134,6 +135,7 @@ func createPool(ctx *cli.Context) error {
 			return err
 		}
 	}
+	fmt.Println("222")
 	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
 	if err != nil {
 		fmt.Println(err)
@@ -143,10 +145,12 @@ func createPool(ctx *cli.Context) error {
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
+	fmt.Println("333")
 	//logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		return err
 	}
+	fmt.Println("444")
 	//logger.Infof("write content")
 	// write content file
 	contentPath := filepath.Join(ctx.String("url"), "content")

@@ -55,9 +55,9 @@ func DefinePool(name, ptype, target, sourceHost, sourceName, sourcePath string) 
 	}
 
 	poolXML := libvirtxml.StoragePool{
-		Type:   ptype,
-		Name:   name,
-		Source: &libvirtxml.StoragePoolSource{},
+		Type: ptype,
+		Name: name,
+		//Source: &libvirtxml.StoragePoolSource{},
 		Target: &libvirtxml.StoragePoolTarget{
 			Path: target,
 		},
