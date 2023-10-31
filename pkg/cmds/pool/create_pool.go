@@ -103,6 +103,7 @@ func createPool(ctx *cli.Context) error {
 	fmt.Println("111")
 	sourceHost, sourceName, sourcePath := ctx.String("source-host"), ctx.String("source-name"), ctx.String("source-path")
 	if ptype == constant.PoolCephfsType {
+		fmt.Println("xxx")
 		secret, err := rook.GetSecret()
 		if err != nil {
 			logger.Errorf("fail to get ceph secret: %+v", err)
