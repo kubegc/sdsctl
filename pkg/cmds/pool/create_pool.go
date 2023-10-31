@@ -100,17 +100,17 @@ func createPool(ctx *cli.Context) error {
 	if !utils.Exists(ctx.String("url")) {
 		utils.CreateDir(ctx.String("url"))
 	}
-	fmt.Println("111")
+	//fmt.Println("111")
 	sourceHost, sourceName, sourcePath := ctx.String("source-host"), ctx.String("source-name"), ctx.String("source-path")
 	if ptype == constant.PoolCephfsType {
-		fmt.Println("xxx")
+		//fmt.Println("xxx")
 		secret, err := rook.GetSecret()
 		if err != nil {
 			logger.Errorf("fail to get ceph secret: %+v", err)
 			return err
 		}
 		scmd := fmt.Sprintf("mount -t ceph -o mds_namespace=%s,name=%s,secret=%s %s:%s %s", constant.DefaultMdsNamespace, constant.DefaultName, secret, sourceHost, sourcePath, ctx.String("url"))
-		fmt.Println(scmd)
+		//fmt.Println(scmd)
 		comm := utils.Command{Cmd: scmd}
 		if _, err := comm.Execute(); err != nil {
 			return err
@@ -137,7 +137,7 @@ func createPool(ctx *cli.Context) error {
 			return err
 		}
 	}
-	fmt.Println("222")
+	//fmt.Println("222")
 	pool, err := virsh.CreatePool(ctx.String("pool"), poolTypeTrans[ptype], ctx.String("url"), sourceHost, sourceName, sourcePath)
 	if err != nil {
 		fmt.Println(err)
@@ -147,12 +147,12 @@ func createPool(ctx *cli.Context) error {
 		virsh.DeletePool(ctx.String("pool"))
 		return err
 	}
-	fmt.Println("333")
+	//fmt.Println("333")
 	//logger.Infof("autostart:%+v", autoStart)
 	if err := virsh.AutoStartPool(ctx.String("pool"), autoStart); err != nil {
 		return err
 	}
-	fmt.Println("444")
+	//fmt.Println("444")
 	//logger.Infof("write content")
 	// write content file
 	contentPath := filepath.Join(ctx.String("url"), "content")
