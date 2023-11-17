@@ -103,12 +103,13 @@ func createPool(ctx *cli.Context) error {
 	//fmt.Println("111")
 	sourceHost, sourceName, sourcePath := ctx.String("source-host"), ctx.String("source-name"), ctx.String("source-path")
 	if ptype == constant.PoolCephfsType {
-		//fmt.Println("xxx")
+
 		secret, err := rook.GetSecret()
 		if err != nil {
 			logger.Errorf("fail to get ceph secret: %+v", err)
 			return err
 		}
+
 		scmd := fmt.Sprintf("mount -t ceph -o mds_namespace=%s,name=%s,secret=%s %s:%s %s", constant.DefaultMdsNamespace, constant.DefaultName, secret, sourceHost, sourcePath, ctx.String("url"))
 		//fmt.Println(scmd)
 		comm := utils.Command{Cmd: scmd}
@@ -128,6 +129,20 @@ func createPool(ctx *cli.Context) error {
 		if err != nil || resp.Code != constant.STATUS_OK {
 			return fmt.Errorf("grpc call err: %+v", resp.Message)
 		}
+
+		// 持久化
+		// /etc/fstab内容
+		// 方法一：source-host:source-path url ceph name=%s,secret=%s,rw,noatime,_netdev 0 0
+		// 10.254.129.113:6789:/volumes/test /var/lib/libvirt/cephfspooltest ceph name=admin,secret=AQCVrkxlkDRbLxAA3fPUnAOrCr95hLoEmszGHw==,rw,noatime,_netdev 0 0
+		// 方法二：ceph-fuse，略
+		//scmd2 := fmt.Sprintf("echo \"%s:%s %s ceph name=%s,secret=%s,rw,noatime,_netdev 0 0\" >> /etc/fstab", sourceHost, sourcePath, ctx.String("url"), constant.DefaultName, secret)
+		//req2 := &pb_gen.RPCRequest{
+		//	Cmd: scmd2,
+		//}
+		//resp, err = client.C.Call(ctx.Context, req2)
+		//if err != nil || resp.Code != constant.STATUS_OK {
+		//	return fmt.Errorf("grpc call err: %+v", resp.Message)
+		//}
 	} else if ptype == constant.PoolCephRbdType {
 		// create rook ceph rbd pool
 		if err := rook.CreateRbdPool(sourceName); err != nil && !strings.Contains(err.Error(), "already exist") {
