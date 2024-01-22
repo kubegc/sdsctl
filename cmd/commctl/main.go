@@ -36,7 +36,11 @@ func main() {
 			host := k8s.GetVMHostName()
 			logger.Infof("start check cephfs mount,host:%s", host)
 			ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
-			list, _ := ksgvr.List(context.TODO(), "default")
+			list, err := ksgvr.List(context.TODO(), "default")
+			if err != nil || list == nil {
+				logger.Infof("get vmp err:%+v", err)
+				continue
+			}
 			//logger.Infof("start check cephfs mount test1:%+v", list)
 			for _, item := range list.Items {
 				nodeName, _ := k8s.GetCRDSpecNodeName(item.Spec.Raw)
