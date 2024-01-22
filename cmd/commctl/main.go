@@ -32,7 +32,8 @@ func main() {
 	go func() {
 		ticker := time.NewTicker(1 * time.Minute)
 		for range ticker.C {
-			host := k8s.GetHostIp()
+			//host := k8s.GetHostIp()
+			host := k8s.GetVMHostName()
 			logger.Infof("start check cephfs mount,host:%s", host)
 			ksgvr := k8s.NewKsGvr(constant.VMPS_Kind)
 			list, _ := ksgvr.List(context.TODO(), "default")
